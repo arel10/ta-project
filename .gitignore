@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+.Python
+venv/
+.venv/
+env/
+.env
+.env.*
+pip-wheel-metadata/
+dist/
+build/
+*.egg-info/
+
+# Python tooling
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Node / Next.js (admin)
+admin/node_modules/
+admin/.next/
+admin/out/
+admin/build/
+admin/.env*
+
+# General Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Flutter / Dart (mobile)
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+flutter_*.log
+
+# Flutter build outputs
+build/
+mobile/build/
+mobile-app/build/
+
+# Android (Flutter)
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/**/build/
+mobile/android/**/.cxx/
+
+# iOS / macOS (Flutter)
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/ephemeral/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/macos/Flutter/ephemeral/
+mobile/macos/Pods/
+mobile/macos/.symlinks/
+
+# Windows / Linux (Flutter)
+mobile/windows/flutter/ephemeral/
+mobile/linux/flutter/ephemeral/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+
+# Uploads and runtime data
+uploads/

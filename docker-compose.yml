@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # ─── PostgreSQL Database ──────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: sirkula-db
+    environment:
+      POSTGRES_DB: sirkula
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d sirkula"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Flask Backend API ────────────────────────────────────
+  backend-api:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile
+    container_name: sirkula-backend
+    environment:
+      DATABASE_URL: postgresql://user:password@postgres:5432/sirkula
+      JWT_SECRET_KEY: sirkula-production-secret-key
+      ML_SERVICE_URL: http://ml-service:5001
+      FLASK_ENV: development
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend-api:/app
+
+  # ─── ML Service ───────────────────────────────────────────
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: sirkula-ml
+    environment:
+      MODEL_DIR: /app/model
+      ML_PORT: 5001
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./model:/app/model:ro
+
+  # ─── Next.js Admin Dashboard ──────────────────────────────
+  admin-web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    container_name: sirkula-admin
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-api
+
+volumes:
+  postgres_data:
