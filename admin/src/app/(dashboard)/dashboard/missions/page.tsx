@@ -26,12 +26,13 @@ import {
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatNumber } from "@/lib/utils";
-import type { Mission } from "@/types";
+import type { Mission, WastePointRate } from "@/types";
 
 export default function MissionsPage() {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("active");
+  const [wasteRates, setWasteRates] = useState<WastePointRate[]>([]);
 
   // Mission form
   const [formOpen, setFormOpen] = useState(false);
@@ -39,6 +40,7 @@ export default function MissionsPage() {
   const [formData, setFormData] = useState({
     title: "", description: "", target_type: "deposit_count",
     target_value: "", period: "daily", points_reward: "", is_active: true,
+    waste_type_code: "all",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -62,13 +64,34 @@ export default function MissionsPage() {
     fetchMissions();
   }, [fetchMissions]);
 
+  useEffect(() => {
+    const fetchWasteRates = async () => {
+      try {
+        const res = await api.get("/admin/waste-point-rates");
+        setWasteRates(res.data.rates || []);
+      } catch {
+        toast.error("Gagal memuat jenis sampah");
+      }
+    };
+    fetchWasteRates();
+  }, []);
+
   const filteredMissions = activeTab === "active"
     ? missions.filter((m) => m.is_active)
     : missions;
 
   const openCreate = () => {
     setEditingMission(null);
-    setFormData({ title: "", description: "", target_type: "deposit_count", target_value: "", period: "daily", points_reward: "", is_active: true });
+    setFormData({
+      title: "",
+      description: "",
+      target_type: "deposit_count",
+      target_value: "",
+      period: "daily",
+      points_reward: "",
+      is_active: true,
+      waste_type_code: "all",
+    });
     setFormOpen(true);
   };
 
@@ -82,6 +105,7 @@ export default function MissionsPage() {
       period: mission.period,
       points_reward: mission.points_reward.toString(),
       is_active: mission.is_active,
+      waste_type_code: mission.waste_type_code?.toLowerCase() || "all",
     });
     setFormOpen(true);
   };
@@ -101,6 +125,7 @@ export default function MissionsPage() {
         period: formData.period,
         points_reward: parseInt(formData.points_reward),
         is_active: formData.is_active,
+        waste_type_code: formData.waste_type_code === "all" ? null : formData.waste_type_code,
       };
 
       if (editingMission) {
@@ -177,11 +202,25 @@ export default function MissionsPage() {
         </div>
 
         <TabsContent value="active" className="mt-6">
-          <MissionTable missions={filteredMissions} loading={loading} onEdit={openEdit} onDelete={(m) => { setDeletingMission(m); setDeleteOpen(true); }} onToggle={toggleMission} />
+          <MissionTable
+            missions={filteredMissions}
+            loading={loading}
+            onEdit={openEdit}
+            onDelete={(m) => { setDeletingMission(m); setDeleteOpen(true); }}
+            onToggle={toggleMission}
+            wasteRates={wasteRates}
+          />
         </TabsContent>
 
         <TabsContent value="all" className="mt-6">
-          <MissionTable missions={missions} loading={loading} onEdit={openEdit} onDelete={(m) => { setDeletingMission(m); setDeleteOpen(true); }} onToggle={toggleMission} />
+          <MissionTable
+            missions={missions}
+            loading={loading}
+            onEdit={openEdit}
+            onDelete={(m) => { setDeletingMission(m); setDeleteOpen(true); }}
+            onToggle={toggleMission}
+            wasteRates={wasteRates}
+          />
         </TabsContent>
       </Tabs>
 
@@ -219,6 +258,23 @@ export default function MissionsPage() {
                 </Select>
               </div>
               <div><Label className="text-xs uppercase font-semibold text-muted-foreground">Nilai Target</Label><Input type="number" value={formData.target_value} onChange={(e) => setFormData({ ...formData, target_value: e.target.value })} placeholder="0" /></div>
+            </div>
+            <div>
+              <Label className="text-xs uppercase font-semibold text-muted-foreground">Jenis Sampah (Opsional)</Label>
+              <Select
+                value={formData.waste_type_code}
+                onValueChange={(v) => setFormData({ ...formData, waste_type_code: v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Semua jenis" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Jenis</SelectItem>
+                  {wasteRates.filter((rate) => rate.is_active).map((rate) => (
+                    <SelectItem key={rate.code} value={rate.code.toLowerCase()}>
+                      {rate.name} ({rate.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -272,11 +328,17 @@ export default function MissionsPage() {
 }
 
 function MissionTable({
-  missions, loading, onEdit, onDelete, onToggle,
+  missions, loading, onEdit, onDelete, onToggle, wasteRates,
 }: {
   missions: Mission[]; loading: boolean;
   onEdit: (m: Mission) => void; onDelete: (m: Mission) => void; onToggle: (m: Mission) => void;
+  wasteRates: WastePointRate[];
 }) {
+  const wasteRateMap = wasteRates.reduce<Record<string, string>>((acc, rate) => {
+    acc[rate.code.toLowerCase()] = rate.name;
+    return acc;
+  }, {});
+
   if (loading) return <div className="space-y-3">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>;
 
   return (
@@ -317,7 +379,14 @@ function MissionTable({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">
-                      {m.target_type === "deposit_count" ? `Setor ${m.target_value}x` : `Target ${m.target_value}kg`}
+                      <div>
+                        <p>{m.target_type === "deposit_count" ? `Setor ${m.target_value}x` : `Target ${m.target_value}kg`}</p>
+                        {m.waste_type_code && (
+                          <p className="text-xs text-muted-foreground">
+                            {wasteRateMap[m.waste_type_code.toLowerCase()] || m.waste_type_code.toUpperCase()}
+                          </p>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <span className="text-green-600 font-bold">{formatNumber(m.points_reward)}</span>

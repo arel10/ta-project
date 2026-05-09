@@ -12,6 +12,7 @@ class Mission(db.Model):
     target_value = db.Column(db.Float, nullable=False)
     points_reward = db.Column(db.Integer, nullable=False, default=0)
     period = db.Column(db.String(20), nullable=False, default='weekly')  # daily / weekly
+    waste_type_code = db.Column(db.String(10), db.ForeignKey('waste_point_rates.code'), nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
@@ -27,6 +28,7 @@ class Mission(db.Model):
             'target_value': self.target_value,
             'points_reward': self.points_reward,
             'period': self.period,
+            'waste_type_code': self.waste_type_code,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }

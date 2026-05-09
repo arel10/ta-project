@@ -47,6 +47,7 @@ export interface Mission {
   target_value: number;
   points_reward: number;
   period: "daily" | "weekly";
+  waste_type_code?: string | null;
   is_active: boolean;
   created_at: string;
   participants_count?: number;

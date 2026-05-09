@@ -44,8 +44,8 @@ class Config:
             'http://127.0.0.1:3001',
 
             # Tergantung Port di Web
-            'http://localhost:50557',
-            'http://127.0.0.1:50557',
+            'http://localhost:64121',
+            'http://127.0.0.1:64121',
         ]
 
     # File Uploads

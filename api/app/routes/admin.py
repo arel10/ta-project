@@ -1359,6 +1359,7 @@ def create_mission():
     target_value = data.get('target_value')
     points_reward = data.get('points_reward')
     period = data.get('period', 'weekly').strip()
+    waste_type_code = (data.get('waste_type_code') or '').strip().lower()
 
     if not title or not target_type or target_value is None or points_reward is None:
         return error_response(
@@ -1384,6 +1385,17 @@ def create_mission():
     if period not in ['daily', 'weekly']:
         return error_response("period harus 'daily' atau 'weekly'", "validation_error", status=400, fields={"period": "invalid"})
 
+    rate = None
+    if waste_type_code:
+        rate = WastePointRate.query.filter(func.lower(WastePointRate.code) == waste_type_code).first()
+        if not rate or not rate.is_active:
+            return error_response(
+                "Jenis sampah tidak valid atau belum aktif",
+                "validation_error",
+                status=400,
+                fields={"waste_type_code": "invalid"},
+            )
+
     mission = Mission(
         title=title,
         description=description,
@@ -1391,6 +1403,7 @@ def create_mission():
         target_value=float(target_value),
         points_reward=int(points_reward),
         period=period,
+        waste_type_code=rate.code if rate else None,
         is_active=True,
     )
     db.session.add(mission)
@@ -1429,6 +1442,20 @@ def update_mission(mission_id):
         mission.points_reward = int(data['points_reward'])
     if 'period' in data:
         mission.period = data['period'].strip()
+    if 'waste_type_code' in data:
+        raw_code = (data.get('waste_type_code') or '').strip().lower()
+        if raw_code:
+            rate = WastePointRate.query.filter(func.lower(WastePointRate.code) == raw_code).first()
+            if not rate or not rate.is_active:
+                return error_response(
+                    "Jenis sampah tidak valid atau belum aktif",
+                    "validation_error",
+                    status=400,
+                    fields={"waste_type_code": "invalid"},
+                )
+            mission.waste_type_code = rate.code
+        else:
+            mission.waste_type_code = None
     if 'is_active' in data:
         mission.is_active = bool(data['is_active'])
 

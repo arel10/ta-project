@@ -287,22 +287,29 @@ def check_mission_progress(user_id: int):
             continue
 
         # Calculate progress based on mission target_type
+        waste_code = (mission.waste_type_code or '').strip().lower()
         if mission.target_type == 'deposit_count':
             # Count validated deposits
-            count = WasteDeposit.query.filter_by(
+            deposit_query = WasteDeposit.query.filter_by(
                 user_id=user_id,
                 status='validated'
-            ).count()
+            )
+            if waste_code:
+                deposit_query = deposit_query.filter(WasteDeposit.waste_type == waste_code)
+            count = deposit_query.count()
             user_mission.progress = min(count, mission.target_value)
 
         elif mission.target_type == 'weight':
             # Sum validated deposit weights
-            total_weight = db.session.query(
+            weight_query = db.session.query(
                 db.func.coalesce(db.func.sum(WasteDeposit.weight_kg), 0)
             ).filter(
                 WasteDeposit.user_id == user_id,
                 WasteDeposit.status == 'validated'
-            ).scalar()
+            )
+            if waste_code:
+                weight_query = weight_query.filter(WasteDeposit.waste_type == waste_code)
+            total_weight = weight_query.scalar()
             user_mission.progress = min(total_weight, mission.target_value)
 
         # Check for completion

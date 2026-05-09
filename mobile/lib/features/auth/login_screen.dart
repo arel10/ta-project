@@ -62,7 +62,11 @@ class _LoginScreenState extends State<LoginScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFFD8EDCF), Color(0xFFE8F2E3), Color(0xFFF2F8EE)],
+                colors: [
+                  Color(0xFFD8EDCF),
+                  Color(0xFFE8F2E3),
+                  Color(0xFFF2F8EE),
+                ],
               ),
             ),
           ),
@@ -184,7 +188,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.emailAddress,
                             style: GoogleFonts.poppins(fontSize: 14),
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.mail_outline, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.mail_outline,
+                                size: 20,
+                              ),
                               hintText: 'name@ecosystem.com',
                               hintStyle: GoogleFonts.poppins(
                                 color: const Color(0xFFADB8AD),
@@ -198,11 +205,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFD4DFC8)),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFD4DFC8),
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFD4DFC8)),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFD4DFC8),
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -255,7 +266,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             obscureText: true,
                             style: GoogleFonts.poppins(fontSize: 14),
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                size: 20,
+                              ),
                               hintText: '••••••••',
                               hintStyle: GoogleFonts.poppins(
                                 color: const Color(0xFFADB8AD),
@@ -269,11 +283,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFD4DFC8)),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFD4DFC8),
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFD4DFC8)),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFD4DFC8),
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -365,9 +383,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: const [
                           Icon(Icons.spa, color: Color(0xFFAAB8A8), size: 18),
                           SizedBox(width: 8),
-                          Icon(Icons.recycling, color: Color(0xFFAAB8A8), size: 18),
+                          Icon(
+                            Icons.recycling,
+                            color: Color(0xFFAAB8A8),
+                            size: 18,
+                          ),
                           SizedBox(width: 8),
-                          Icon(Icons.eco_outlined, color: Color(0xFFAAB8A8), size: 18),
+                          Icon(
+                            Icons.eco_outlined,
+                            color: Color(0xFFAAB8A8),
+                            size: 18,
+                          ),
                         ],
                       ),
                     ),
