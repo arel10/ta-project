@@ -63,8 +63,18 @@ def create_deposit():
     if weight_kg <= 0:
         return error_response("Berat harus lebih dari 0", "validation_error", status=400, fields={"weight_kg": "min_0"})
 
-    active_rates = get_active_waste_point_rates()
-    valid_types = {r.code.lower() for r in active_rates}
+    active_rates = get_active_waste_point_rates() or []
+    valid_types = set()
+    try:
+        for r in active_rates:
+            if isinstance(r, dict):
+                code = (r.get('code') or '').strip().lower()
+            else:
+                code = (getattr(r, 'code', '') or '').strip().lower()
+            if code:
+                valid_types.add(code)
+    except Exception:
+        valid_types = set()
     if waste_type not in valid_types:
         return error_response(
             "Jenis sampah tidak valid atau belum aktif",

@@ -36,7 +36,8 @@ class ApiClient {
           handler.next(options);
         },
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
+          if (error.response?.statusCode == 401 &&
+              error.requestOptions.path != '/auth/login') {
             await TokenHelper.clearToken();
             onUnauthorized?.call();
           }
@@ -109,8 +110,13 @@ class ApiClient {
         final statusCode = error.response?.statusCode ?? 0;
         final data = error.response?.data;
         String message = 'Terjadi kesalahan';
-        if (data is Map<String, dynamic> && data.containsKey('message')) {
-          message = data['message'];
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey('message')) {
+            message = data['message']?.toString() ?? message;
+          } else if (data['error'] is Map<String, dynamic> &&
+              (data['error'] as Map<String, dynamic>).containsKey('message')) {
+            message = (data['error'] as Map<String, dynamic>)['message']?.toString() ?? message;
+          }
         }
         if (statusCode == 401) {
           return UnauthorizedException(message);

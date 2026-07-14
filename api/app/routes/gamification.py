@@ -21,15 +21,26 @@ def _get_current_user():
 @gamification_bp.route('/missions', methods=['GET'])
 @jwt_required()
 def get_missions():
-    """Get all active missions with current user's progress."""
+    """Get all active missions with current user's progress, filtered by risk label."""
+    from app.models.participation_risk import ParticipationRisk
+
     user = _get_current_user()
     if not user:
         return error_response("User tidak ditemukan", "not_found", status=404)
+
+    # Get user's current risk label
+    risk_profile = ParticipationRisk.query.filter_by(user_id=user.id).first()
+    user_risk_level = risk_profile.risk_level if risk_profile else None  # e.g. 'low', 'medium', 'high'
 
     active_missions = Mission.query.filter_by(is_active=True).all()
     result = []
 
     for mission in active_missions:
+        # Filter by target_label: if set, only show to matching risk-level users
+        mission_target = mission.target_label  # None / 'high' / 'medium' / 'low'
+        if mission_target and mission_target != user_risk_level:
+            continue  # skip — not targeted at this user's risk level
+
         user_mission = UserMission.query.filter_by(
             user_id=user.id,
             mission_id=mission.id,

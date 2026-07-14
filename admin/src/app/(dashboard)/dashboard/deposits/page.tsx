@@ -50,7 +50,6 @@ export default function DepositsPage() {
   // Validation modal state
   const [validateOpen, setValidateOpen] = useState(false);
   const [selectedDeposit, setSelectedDeposit] = useState<WasteDeposit | null>(null);
-  const [actualWeight, setActualWeight] = useState("");
   const [validating, setValidating] = useState(false);
 
   const fetchDeposits = useCallback(async () => {
@@ -103,11 +102,11 @@ export default function DepositsPage() {
   };
 
   const handleValidate = async () => {
-    if (!selectedDeposit || !actualWeight) return;
+    if (!selectedDeposit) return;
     setValidating(true);
     try {
       await api.put(`/deposits/${selectedDeposit.id}/validate`, {
-        actual_weight_kg: parseFloat(actualWeight),
+        actual_weight_kg: selectedDeposit.weight_kg,
       });
 
       toast.success("Setoran berhasil divalidasi!");
@@ -116,14 +115,13 @@ export default function DepositsPage() {
       setDeposits((prev) =>
         prev.map((d) =>
           d.id === selectedDeposit.id
-            ? { ...d, status: "validated" as const, points_earned: calculatePoints(parseFloat(actualWeight), d.waste_type) }
+            ? { ...d, status: "validated" as const, points_earned: calculatePoints(d.weight_kg, d.waste_type) }
             : d
         )
       );
 
       setValidateOpen(false);
       setSelectedDeposit(null);
-      setActualWeight("");
       fetchDeposits();
     } catch {
       toast.error("Gagal memvalidasi setoran");
@@ -134,12 +132,11 @@ export default function DepositsPage() {
 
   const openValidateModal = (deposit: WasteDeposit) => {
     setSelectedDeposit(deposit);
-    setActualWeight(deposit.weight_kg.toString());
     setValidateOpen(true);
   };
 
-  const previewPoints = actualWeight && selectedDeposit
-    ? calculatePoints(parseFloat(actualWeight) || 0, selectedDeposit.waste_type)
+  const previewPoints = selectedDeposit
+    ? calculatePoints(selectedDeposit.weight_kg, selectedDeposit.waste_type)
     : 0;
 
   return (
@@ -313,7 +310,7 @@ export default function DepositsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Validasi Setoran Sampah</DialogTitle>
-            <DialogDescription>Verifikasi berat aktual setoran</DialogDescription>
+            <DialogDescription>Verifikasi setoran sampah anggota</DialogDescription>
           </DialogHeader>
 
           {selectedDeposit && (
@@ -324,7 +321,7 @@ export default function DepositsPage() {
                   <p className="font-semibold mt-1">{selectedDeposit.user_name}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground uppercase font-medium">Berat Input</p>
+                  <p className="text-xs text-muted-foreground uppercase font-medium">Berat Setoran</p>
                   <p className="font-semibold mt-1">{selectedDeposit.weight_kg} kg</p>
                 </div>
               </div>
@@ -336,25 +333,7 @@ export default function DepositsPage() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="actual-weight" className="font-semibold">Berat Aktual (kg)</Label>
-                <div className="relative">
-                  <Input
-                    id="actual-weight"
-                    type="number"
-                    step="0.01"
-                    value={actualWeight}
-                    onChange={(e) => setActualWeight(e.target.value)}
-                    className="pr-10 text-lg font-semibold text-green-600 h-12"
-                    placeholder="0.00"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
-                    kg
-                  </span>
-                </div>
-              </div>
-
-              {parseFloat(actualWeight) > 0 && (
+              {previewPoints > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
                   <span className="text-green-600 text-lg">⭐</span>
                   <p className="text-sm">
@@ -373,7 +352,7 @@ export default function DepositsPage() {
             <Button
               className="bg-green-600 hover:bg-green-700 text-white"
               onClick={handleValidate}
-              disabled={!actualWeight || parseFloat(actualWeight) <= 0 || validating}
+              disabled={validating}
             >
               {validating ? (
                 <>

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:sirkula/features/auth/auth_provider.dart';
 import 'package:sirkula/features/reward/reward_provider.dart';
 import 'package:sirkula/models/reward_model.dart';
 
@@ -13,6 +14,29 @@ class RewardDetailScreen extends StatelessWidget {
   /// Performs reward redemption from detail page.
   Future<void> _redeem(BuildContext context) async {
     final provider = context.read<RewardProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final userPoints = authProvider.currentUser?.points ?? 0;
+
+    if (userPoints < reward.pointsCost) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Poin Tidak Cukup'),
+            content: Text(
+              'Poin Anda saat ini ($userPoints pts) tidak cukup untuk menukarkan "${reward.name}" (${reward.pointsCost} pts). Silakan kumpulkan poin lebih banyak dengan menyetor sampah.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Tutup'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
     final approved = await showDialog<bool>(
       context: context,
@@ -45,6 +69,10 @@ class RewardDetailScreen extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
+      
+      // Refresh user profile/points
+      authProvider.checkAuth();
+
       await showDialog<void>(
         context: context,
         builder: (context) {

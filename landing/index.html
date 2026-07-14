@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sirkula — Platform Digital Bank Sampah</title>
+  <meta name="description" content="Sirkula adalah platform digital bank sampah yang mengubah sampah menjadi nilai. Setor sampah, dapatkan poin, tukar reward, dan berkontribusi untuk lingkungan yang lebih baik." />
+  <meta name="keywords" content="bank sampah digital, sirkula, daur ulang, reward sampah, eco app, lingkungan" />
+  <meta property="og:title" content="Sirkula — Platform Digital Bank Sampah" />
+  <meta property="og:description" content="Ubah sampahmu menjadi nilai nyata. Setor, kumpulkan poin, tukar reward." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 10 C70 10 85 25 85 45 C85 55 80 63 73 68 L78 78 L58 72 L64 52 L70 60 C74 56 77 51 77 45 C77 29 65 18 50 18 Z" fill="#4CAF70"/>
+            <path d="M15 55 C15 35 30 20 50 20 C60 20 68 24 74 31 L64 36 L78 50 L90 32 L80 37 C73 27 62 20 50 20 C26 20 10 38 10 55 Z" fill="#1A7A2C"/>
+            <path d="M85 55 C85 75 70 90 50 90 C40 90 32 86 26 79 L36 74 L22 60 L10 78 L20 73 C27 83 38 90 50 90 C74 90 90 72 90 55 Z" fill="#3A9BD5"/>
+          </svg>
+        </div>
+        <span class="logo-text">Sirkula</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#fitur">Fitur</a></li>
+        <li><a href="#cara-kerja">Cara Kerja</a></li>
+        <li><a href="#gamifikasi">Gamifikasi</a></li>
+        <li><a href="#teknologi">Teknologi</a></li>
+        <li><a href="#dampak">Dampak</a></li>
+      </ul>
+      <a href="#download" class="nav-cta">Mulai Sekarang</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-particles" id="particles"></div>
+
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Platform Digital Bank Sampah #1
+        </div>
+        <h1 class="hero-title">
+          Ubah Sampahmu<br/>
+          <span class="gradient-text">Menjadi Nilai</span><br/>
+          yang Nyata
+        </h1>
+        <p class="hero-subtitle">
+          Sirkula hadir sebagai ekosistem sirkular digital yang mengubah kebiasaan pengelolaan sampah menjadi pengalaman yang menguntungkan, menyenangkan, dan berdampak bagi lingkungan.
+        </p>
+        <div class="hero-actions">
+          <a href="#fitur" class="btn-primary" id="btn-hero-explore">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L12 22M2 12L22 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+            Jelajahi Fitur
+          </a>
+          <a href="#cara-kerja" class="btn-outline">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+            Lihat Demo
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num" data-target="1200">0</span><span class="stat-unit">+</span>
+            <span class="stat-label">Pengguna Aktif</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="8500">0</span><span class="stat-unit"> kg</span>
+            <span class="stat-label">Sampah Terkelola</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="350">0</span><span class="stat-unit">+</span>
+            <span class="stat-label">Reward Ditukar</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="phone-wrapper">
+          <div class="phone-glow"></div>
+          <svg class="phone-mockup" viewBox="0 0 320 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="300" height="620" rx="40" fill="#0D1F0F" stroke="#2A5C2F" stroke-width="2"/>
+            <rect x="18" y="18" width="284" height="604" rx="35" fill="#0F2812"/>
+            <rect x="20" y="20" width="280" height="600" rx="33" fill="#0A1F0C"/>
+            <rect x="110" y="22" width="100" height="24" rx="12" fill="#0D1F0F"/>
+            <text x="35" y="40" fill="#9DC99E" font-size="9" font-family="Poppins">9:41</text>
+            <text x="255" y="40" fill="#9DC99E" font-size="8" font-family="Poppins">●●●</text>
+            <rect x="20" y="55" width="280" height="130" rx="0" fill="url(#headerGrad)"/>
+            <defs>
+              <linearGradient id="headerGrad" x1="0" y1="0" x2="300" y2="130" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#1A7A2C"/>
+                <stop offset="100%" stop-color="#0D4A1A"/>
+              </linearGradient>
+            </defs>
+            <text x="45" y="85" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Poppins">Selamat datang, Budi &#128075;</text>
+            <text x="45" y="108" fill="white" font-size="20" font-weight="bold" font-family="Poppins">2,450 pts</text>
+            <rect x="45" y="118" width="120" height="6" rx="3" fill="rgba(255,255,255,0.15)"/>
+            <rect x="45" y="118" width="80" height="6" rx="3" fill="rgba(255,255,255,0.7)"/>
+            <text x="45" y="143" fill="rgba(255,255,255,0.5)" font-size="8" font-family="Poppins">80% menuju level berikutnya</text>
+            <ellipse cx="265" cy="90" rx="35" ry="35" fill="rgba(255,255,255,0.05)"/>
+            <ellipse cx="275" cy="100" rx="25" ry="25" fill="rgba(255,255,255,0.05)"/>
+            <text x="35" y="210" fill="#9DC99E" font-size="10" font-family="Poppins" font-weight="600">AKSI CEPAT</text>
+            <rect x="30" y="218" width="58" height="60" rx="14" fill="#1E3A1E"/>
+            <text x="59" y="254" fill="#4CAF70" font-size="22" text-anchor="middle">&#9851;</text>
+            <text x="59" y="272" fill="rgba(255,255,255,0.7)" font-size="7" font-family="Poppins" text-anchor="middle">Setor</text>
+            <rect x="98" y="218" width="58" height="60" rx="14" fill="#1E3A1E"/>
+            <text x="127" y="254" fill="#FFD700" font-size="22" text-anchor="middle">&#127873;</text>
+            <text x="127" y="272" fill="rgba(255,255,255,0.7)" font-size="7" font-family="Poppins" text-anchor="middle">Reward</text>
+            <rect x="166" y="218" width="58" height="60" rx="14" fill="#1E3A1E"/>
+            <text x="195" y="254" fill="#64B5F6" font-size="22" text-anchor="middle">&#127942;</text>
+            <text x="195" y="272" fill="rgba(255,255,255,0.7)" font-size="7" font-family="Poppins" text-anchor="middle">Misi</text>
+            <rect x="234" y="218" width="58" height="60" rx="14" fill="#1E3A1E"/>
+            <text x="263" y="254" fill="#EF9A9A" font-size="22" text-anchor="middle">&#128202;</text>
+            <text x="263" y="272" fill="rgba(255,255,255,0.7)" font-size="7" font-family="Poppins" text-anchor="middle">Riwayat</text>
+            <text x="35" y="308" fill="#9DC99E" font-size="10" font-family="Poppins" font-weight="600">MISI AKTIF</text>
+            <rect x="30" y="316" width="260" height="55" rx="14" fill="#1E3A1E"/>
+            <text x="50" y="336" fill="white" font-size="9" font-family="Poppins" font-weight="600">Setor Plastik 5 kg</text>
+            <text x="50" y="350" fill="rgba(255,255,255,0.5)" font-size="8" font-family="Poppins">3.2 / 5 kg tercapai</text>
+            <rect x="50" y="356" width="160" height="5" rx="3" fill="rgba(255,255,255,0.1)"/>
+            <rect x="50" y="356" width="102" height="5" rx="3" fill="#4CAF70"/>
+            <text x="260" y="347" fill="#FFD700" font-size="8" font-family="Poppins" text-anchor="end">+500 pts</text>
+            <rect x="30" y="378" width="260" height="55" rx="14" fill="#1E3A1E"/>
+            <text x="50" y="398" fill="white" font-size="9" font-family="Poppins" font-weight="600">Setor 3 Hari Berturut</text>
+            <text x="50" y="412" fill="rgba(255,255,255,0.5)" font-size="8" font-family="Poppins">2 / 3 hari selesai</text>
+            <rect x="50" y="418" width="160" height="5" rx="3" fill="rgba(255,255,255,0.1)"/>
+            <rect x="50" y="418" width="107" height="5" rx="3" fill="#3A9BD5"/>
+            <text x="260" y="409" fill="#FFD700" font-size="8" font-family="Poppins" text-anchor="end">+300 pts</text>
+            <text x="35" y="460" fill="#9DC99E" font-size="10" font-family="Poppins" font-weight="600">LEADERBOARD</text>
+            <rect x="30" y="468" width="260" height="75" rx="14" fill="#1E3A1E"/>
+            <text x="50" y="487" fill="#FFD700" font-size="12">1st</text>
+            <text x="75" y="487" fill="white" font-size="9" font-family="Poppins">Andi Pratama</text>
+            <text x="260" y="487" fill="#4CAF70" font-size="9" font-family="Poppins" text-anchor="end">12,800 pts</text>
+            <text x="50" y="504" fill="rgba(255,255,255,0.5)" font-size="12">2nd</text>
+            <text x="75" y="504" fill="rgba(255,255,255,0.8)" font-size="9" font-family="Poppins">Budi Santoso</text>
+            <text x="260" y="504" fill="rgba(255,255,255,0.6)" font-size="9" font-family="Poppins" text-anchor="end">11,200 pts</text>
+            <text x="50" y="521" fill="rgba(255,255,255,0.4)" font-size="12">3rd</text>
+            <text x="75" y="521" fill="rgba(255,255,255,0.6)" font-size="9" font-family="Poppins">Citra Dewi</text>
+            <text x="260" y="521" fill="rgba(255,255,255,0.4)" font-size="9" font-family="Poppins" text-anchor="end">9,500 pts</text>
+            <rect x="20" y="575" width="280" height="45" rx="0" fill="#0D1F0F"/>
+            <rect x="20" y="575" width="280" height="1" fill="#2A5C2F"/>
+            <text x="70" y="603" fill="#4CAF70" font-size="18" text-anchor="middle">Home</text>
+            <text x="127" y="603" fill="rgba(255,255,255,0.3)" font-size="18" text-anchor="middle">Setor</text>
+            <text x="195" y="603" fill="rgba(255,255,255,0.3)" font-size="18" text-anchor="middle">Reward</text>
+            <text x="253" y="603" fill="rgba(255,255,255,0.3)" font-size="18" text-anchor="middle">Profil</text>
+          </svg>
+
+          <div class="float-card float-card-1">
+            <span class="float-icon">&#9851;&#65039;</span>
+            <div>
+              <div class="float-title">Plastik Disetor</div>
+              <div class="float-val">+2.5 kg · +125 pts</div>
+            </div>
+          </div>
+          <div class="float-card float-card-2">
+            <span class="float-icon">&#127885;</span>
+            <div>
+              <div class="float-title">Badge Diraih!</div>
+              <div class="float-val">Eco Warrior Level 3</div>
+            </div>
+          </div>
+          <div class="float-card float-card-3">
+            <span class="float-icon">&#129302;</span>
+            <div>
+              <div class="float-title">AI Analisis</div>
+              <div class="float-val">Risiko Rendah &#10003;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll-indicator">
+      <div class="scroll-mouse">
+        <div class="scroll-dot"></div>
+      </div>
+      <span>Scroll untuk menjelajahi</span>
+    </div>
+  </section>
+
+  <!-- ===== FITUR ===== -->
+  <section class="section features-section" id="fitur">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Fitur Unggulan</div>
+        <h2 class="section-title">Semua yang Kamu Butuhkan<br/><span class="gradient-text">dalam Satu Platform</span></h2>
+        <p class="section-desc">Sirkula dirancang untuk memudahkan setiap langkah — dari setor sampah hingga menukar reward.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card feature-card--large" data-aos="fade-up">
+          <div class="feature-icon-wrap" style="background: linear-gradient(135deg, #1A7A2C, #4CAF70);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Setor Sampah Digital</h3>
+          <p>Ajukan setoran sampah langsung dari aplikasi. Pilih jenis sampah (Plastik, Kertas, Logam, Kaca, Organik, Elektronik), masukkan berat estimasi, dan tunggu konfirmasi petugas bank sampah.</p>
+          <div class="feature-tags">
+            <span class="tag">6 Kategori Sampah</span>
+            <span class="tag">Konfirmasi Real-time</span>
+            <span class="tag">Riwayat Lengkap</span>
+          </div>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="feature-icon-wrap" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M12 6v6l4 2" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Sistem Poin & Reward</h3>
+          <p>Setiap kilogram sampah yang disetor menghasilkan poin. Tukar poin dengan beragam reward menarik — voucher, produk eco-friendly, hingga hadiah digital.</p>
+          <div class="feature-tags">
+            <span class="tag">Poin Otomatis</span>
+            <span class="tag">Reward Catalog</span>
+          </div>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="feature-icon-wrap" style="background: linear-gradient(135deg, #3A9BD5, #60B8F0);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="white" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Leaderboard Komunitas</h3>
+          <p>Bersaing secara sehat dengan anggota lain. Lihat posisi rankingmu dan termotivasi untuk menyetor lebih banyak demi lingkungan yang lebih bersih.</p>
+          <div class="feature-tags">
+            <span class="tag">Ranking Real-time</span>
+            <span class="tag">Top 10 Board</span>
+          </div>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+          <div class="feature-icon-wrap" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Misi & Gamifikasi</h3>
+          <p>Selesaikan misi harian &amp; mingguan untuk mendapatkan bonus poin ekstra. Kumpulkan badge dan naiki level sebagai bukti kontribusimu terhadap lingkungan.</p>
+          <div class="feature-tags">
+            <span class="tag">Daily Missions</span>
+            <span class="tag">Badge System</span>
+          </div>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="feature-icon-wrap" style="background: linear-gradient(135deg, #EF4444, #F87171);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Analitik Berbasis AI</h3>
+          <p>Machine learning menganalisis pola setoran untuk mendeteksi anomali dan menilai risiko partisipasi, memastikan integritas seluruh ekosistem bank sampah.</p>
+          <div class="feature-tags">
+            <span class="tag">ML Risk Detection</span>
+            <span class="tag">Smart Insights</span>
+          </div>
+        </div>
+
+        <div class="feature-card feature-card--large" data-aos="fade-up" data-aos-delay="200">
+          <div class="feature-icon-wrap" style="background: linear-gradient(135deg, #0D9488, #2DD4BF);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="white" stroke-width="2"/><path d="M3 9h18M9 21V9" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Panel Admin Lengkap</h3>
+          <p>Admin bank sampah mendapatkan dashboard komprehensif: manajemen anggota, validasi setoran, konfigurasi reward &amp; misi, monitoring risiko, dan laporan statistik lengkap secara real-time.</p>
+          <div class="feature-tags">
+            <span class="tag">Dashboard Analytics</span>
+            <span class="tag">Manajemen Anggota</span>
+            <span class="tag">Validasi Setoran</span>
+            <span class="tag">Laporan Statistik</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CARA KERJA ===== -->
+  <section class="section how-section" id="cara-kerja">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Cara Kerja</div>
+        <h2 class="section-title">Setor Sampah Jadi<br/><span class="gradient-text">Semudah 4 Langkah</span></h2>
+      </div>
+
+      <div class="steps-container">
+        <div class="steps-line"></div>
+        <div class="step" data-aos="fade-right">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-icon">&#128241;</div>
+            <h3>Daftar &amp; Login</h3>
+            <p>Buat akun di aplikasi Sirkula menggunakan email dan kata sandi. Isi profil lengkap untuk memulai perjalanan ecomu.</p>
+          </div>
+        </div>
+        <div class="step" data-aos="fade-right" data-aos-delay="100">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-icon">&#9851;&#65039;</div>
+            <h3>Ajukan Setoran</h3>
+            <p>Pilih jenis sampah yang ingin disetor, masukkan estimasi berat, lalu kirim permintaan setoran ke bank sampah terdekat.</p>
+          </div>
+        </div>
+        <div class="step" data-aos="fade-right" data-aos-delay="200">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-icon">&#10003;</div>
+            <h3>Konfirmasi Admin</h3>
+            <p>Petugas bank sampah memverifikasi dan menimbang sampahmu. Poin langsung dikreditkan ke akunmu setelah konfirmasi.</p>
+          </div>
+        </div>
+        <div class="step" data-aos="fade-right" data-aos-delay="300">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-icon">&#127873;</div>
+            <h3>Tukar Reward</h3>
+            <p>Gunakan poinmu untuk menukar reward menarik dari katalog — mulai voucher belanja, produk eco-friendly, hingga hadiah digital.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GAMIFIKASI ===== -->
+  <section class="section gamification-section" id="gamifikasi">
+    <div class="container">
+      <div class="gamification-layout">
+        <div class="gamification-text" data-aos="fade-right">
+          <div class="section-tag">Gamifikasi</div>
+          <h2 class="section-title">Setor Sampah<br/><span class="gradient-text">Kini Seru &amp; Mengasyikkan</span></h2>
+          <p class="section-desc">Dengan sistem gamifikasi berbasis misi, badge, poin, dan leaderboard — Sirkula membuat kebiasaan baik menjadi tantangan yang menyenangkan.</p>
+          <div class="game-features">
+            <div class="game-feature-item">
+              <div class="gf-icon">&#127942;</div>
+              <div>
+                <h4>Misi Harian &amp; Mingguan</h4>
+                <p>Selesaikan misi untuk mendapatkan bonus poin ekstra dan naiki peringkat leaderboard.</p>
+              </div>
+            </div>
+            <div class="game-feature-item">
+              <div class="gf-icon">&#127894;&#65039;</div>
+              <div>
+                <h4>Koleksi Badge</h4>
+                <p>Raih badge eksklusif sebagai pengakuan atas kontribusi nyatamu terhadap lingkungan.</p>
+              </div>
+            </div>
+            <div class="game-feature-item">
+              <div class="gf-icon">&#128200;</div>
+              <div>
+                <h4>Level &amp; Progress</h4>
+                <p>Tingkatkan levelmu dari Eco Beginner hingga Eco Champion dengan mengumpulkan poin.</p>
+              </div>
+            </div>
+            <div class="game-feature-item">
+              <div class="gf-icon">&#128276;</div>
+              <div>
+                <h4>Notifikasi Cerdas</h4>
+                <p>Terima notifikasi untuk konfirmasi setoran, pencapaian misi, dan penawaran reward baru.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gamification-visual" data-aos="fade-left">
+          <div class="badges-showcase">
+            <h4>Badge Koleksi</h4>
+            <div class="badges-grid">
+              <div class="badge-item badge-earned">
+                <div class="badge-icon">&#127807;</div>
+                <span>Eco Starter</span>
+              </div>
+              <div class="badge-item badge-earned">
+                <div class="badge-icon">&#9851;&#65039;</div>
+                <span>Recycler Pro</span>
+              </div>
+              <div class="badge-item badge-earned">
+                <div class="badge-icon">&#127757;</div>
+                <span>Earth Guardian</span>
+              </div>
+              <div class="badge-item badge-earned">
+                <div class="badge-icon">&#9889;</div>
+                <span>Streak Master</span>
+              </div>
+              <div class="badge-item">
+                <div class="badge-icon locked">&#128274;</div>
+                <span>Eco Legend</span>
+              </div>
+              <div class="badge-item">
+                <div class="badge-icon locked">&#128274;</div>
+                <span>Planet Saver</span>
+              </div>
+            </div>
+            <div class="level-progress-card">
+              <div class="level-header">
+                <span class="level-label">Level Saat Ini</span>
+                <span class="level-name">&#127807; Eco Warrior</span>
+              </div>
+              <div class="level-bar-track">
+                <div class="level-bar-fill" style="width: 67%;"></div>
+              </div>
+              <div class="level-info">
+                <span>2,450 / 3,600 pts</span>
+                <span>Eco Champion &#8594;</span>
+              </div>
+            </div>
+            <div class="reward-preview">
+              <div class="reward-icon">&#127873;</div>
+              <div class="reward-info">
+                <div class="reward-name">Voucher Belanja Rp 50.000</div>
+                <div class="reward-pts">3,000 Poin</div>
+              </div>
+              <button class="reward-btn" id="btn-tukar-reward">Tukar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEKNOLOGI ===== -->
+  <section class="section tech-section" id="teknologi">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Stack Teknologi</div>
+        <h2 class="section-title">Dibangun dengan<br/><span class="gradient-text">Teknologi Modern</span></h2>
+        <p class="section-desc">Sirkula merupakan sistem full-stack yang menggabungkan mobile app, admin panel, REST API, dan machine learning dalam satu ekosistem terintegrasi.</p>
+      </div>
+
+      <div class="tech-arch">
+        <div class="arch-diagram" data-aos="fade-up">
+          <div class="arch-layer arch-layer--mobile">
+            <div class="arch-layer-title">&#128241; Mobile Layer</div>
+            <div class="arch-chips">
+              <div class="chip chip--flutter">Flutter</div>
+              <div class="chip chip--dart">Dart</div>
+              <div class="chip chip--provider">Provider</div>
+              <div class="chip chip--gorouter">GoRouter</div>
+            </div>
+          </div>
+          <div class="arch-arrows">&#8597;</div>
+          <div class="arch-layer arch-layer--admin">
+            <div class="arch-layer-title">&#128421;&#65039; Admin Layer</div>
+            <div class="arch-chips">
+              <div class="chip chip--nextjs">Next.js</div>
+              <div class="chip chip--react">React</div>
+              <div class="chip chip--ts">TypeScript</div>
+              <div class="chip chip--tailwind">Tailwind CSS</div>
+            </div>
+          </div>
+          <div class="arch-arrows">&#8597;</div>
+          <div class="arch-layer arch-layer--api">
+            <div class="arch-layer-title">&#9881;&#65039; API Layer</div>
+            <div class="arch-chips">
+              <div class="chip chip--flask">Flask</div>
+              <div class="chip chip--python">Python</div>
+              <div class="chip chip--sqlalchemy">SQLAlchemy</div>
+              <div class="chip chip--jwt">JWT Auth</div>
+            </div>
+          </div>
+          <div class="arch-arrows">&#8597;</div>
+          <div class="arch-layer arch-layer--ml">
+            <div class="arch-layer-title">&#129302; ML Service</div>
+            <div class="arch-chips">
+              <div class="chip chip--ml">Machine Learning</div>
+              <div class="chip chip--risk">Risk Analysis</div>
+              <div class="chip chip--anomaly">Anomaly Detection</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tech-cards" data-aos="fade-left">
+          <div class="tech-card">
+            <div class="tc-header">
+              <span class="tc-emoji">&#128241;</span>
+              <h3>Mobile App</h3>
+            </div>
+            <p>Aplikasi Android &amp; iOS dibangun dengan Flutter menggunakan Material Design 3. State management dengan Provider pattern, navigasi dengan GoRouter.</p>
+            <ul>
+              <li>&#10022; Cross-platform (Android &amp; iOS)</li>
+              <li>&#10022; Smooth animations &amp; transitions</li>
+              <li>&#10022; Offline-capable architecture</li>
+            </ul>
+          </div>
+          <div class="tech-card">
+            <div class="tc-header">
+              <span class="tc-emoji">&#128421;&#65039;</span>
+              <h3>Admin Dashboard</h3>
+            </div>
+            <p>Web app admin dibangun dengan Next.js 14 App Router, memberikan antarmuka yang responsif untuk manajemen operasional bank sampah.</p>
+            <ul>
+              <li>&#10022; Next.js App Router (SSR/SSG)</li>
+              <li>&#10022; Real-time data dashboard</li>
+              <li>&#10022; Manajemen lengkap semua entitas</li>
+            </ul>
+          </div>
+          <div class="tech-card">
+            <div class="tc-header">
+              <span class="tc-emoji">&#9881;&#65039;</span>
+              <h3>REST API Backend</h3>
+            </div>
+            <p>API RESTful dibangun dengan Python Flask, dilengkapi autentikasi JWT, migrasi database dengan Alembic, dan dokumentasi API lengkap.</p>
+            <ul>
+              <li>&#10022; JWT Authentication</li>
+              <li>&#10022; Database migrations (Alembic)</li>
+              <li>&#10022; Docker-ready deployment</li>
+            </ul>
+          </div>
+          <div class="tech-card">
+            <div class="tc-header">
+              <span class="tc-emoji">&#129302;</span>
+              <h3>ML Service</h3>
+            </div>
+            <p>Layanan machine learning terpisah yang menganalisis pola setoran untuk mendeteksi anomali dan memberikan skor risiko partisipasi setiap anggota.</p>
+            <ul>
+              <li>&#10022; Anomaly detection model</li>
+              <li>&#10022; Participation risk scoring</li>
+              <li>&#10022; Real-time inference API</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DAMPAK ===== -->
+  <section class="section impact-section" id="dampak">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Dampak Nyata</div>
+        <h2 class="section-title">Bersama, Kita Ciptakan<br/><span class="gradient-text">Perubahan Lingkungan</span></h2>
+      </div>
+
+      <div class="impact-grid">
+        <div class="impact-card" data-aos="zoom-in">
+          <div class="impact-num">
+            <span class="count-up" data-target="8500">0</span>
+            <span class="impact-unit">kg</span>
+          </div>
+          <div class="impact-label">Sampah Terkelola</div>
+          <div class="impact-sub">dari berbagai kategori sampah</div>
+          <div class="impact-bar" style="--pct: 85%;"></div>
+        </div>
+        <div class="impact-card" data-aos="zoom-in" data-aos-delay="100">
+          <div class="impact-num">
+            <span class="count-up" data-target="1247">0</span>
+            <span class="impact-unit">+</span>
+          </div>
+          <div class="impact-label">Pengguna Aktif</div>
+          <div class="impact-sub">bergabung dalam komunitas</div>
+          <div class="impact-bar" style="--pct: 72%;"></div>
+        </div>
+        <div class="impact-card" data-aos="zoom-in" data-aos-delay="200">
+          <div class="impact-num">
+            <span class="count-up" data-target="89420">0</span>
+          </div>
+          <div class="impact-label">Poin Terdistribusi</div>
+          <div class="impact-sub">sebagai apresiasi pengguna</div>
+          <div class="impact-bar" style="--pct: 90%;"></div>
+        </div>
+        <div class="impact-card" data-aos="zoom-in" data-aos-delay="300">
+          <div class="impact-num">
+            <span class="count-up" data-target="350">0</span>
+            <span class="impact-unit">+</span>
+          </div>
+          <div class="impact-label">Reward Ditukar</div>
+          <div class="impact-sub">nilai nyata dari sampah</div>
+          <div class="impact-bar" style="--pct: 55%;"></div>
+        </div>
+      </div>
+
+      <div class="waste-breakdown" data-aos="fade-up">
+        <h3>Distribusi Kategori Sampah yang Disetor</h3>
+        <div class="waste-bars">
+          <div class="waste-bar-item">
+            <div class="wb-label"><span class="wb-dot" style="background:#4CAF70;"></span><span>Plastik</span></div>
+            <div class="wb-track"><div class="wb-fill" style="width:0%;background:#4CAF70;" data-width="42%"></div></div>
+            <span class="wb-pct">42%</span>
+          </div>
+          <div class="waste-bar-item">
+            <div class="wb-label"><span class="wb-dot" style="background:#F59E0B;"></span><span>Kertas</span></div>
+            <div class="wb-track"><div class="wb-fill" style="width:0%;background:#F59E0B;" data-width="28%"></div></div>
+            <span class="wb-pct">28%</span>
+          </div>
+          <div class="waste-bar-item">
+            <div class="wb-label"><span class="wb-dot" style="background:#3A9BD5;"></span><span>Logam</span></div>
+            <div class="wb-track"><div class="wb-fill" style="width:0%;background:#3A9BD5;" data-width="15%"></div></div>
+            <span class="wb-pct">15%</span>
+          </div>
+          <div class="waste-bar-item">
+            <div class="wb-label"><span class="wb-dot" style="background:#8B5CF6;"></span><span>Kaca</span></div>
+            <div class="wb-track"><div class="wb-fill" style="width:0%;background:#8B5CF6;" data-width="8%"></div></div>
+            <span class="wb-pct">8%</span>
+          </div>
+          <div class="waste-bar-item">
+            <div class="wb-label"><span class="wb-dot" style="background:#EF4444;"></span><span>Lainnya</span></div>
+            <div class="wb-track"><div class="wb-fill" style="width:0%;background:#EF4444;" data-width="7%"></div></div>
+            <span class="wb-pct">7%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-section" id="download">
+    <div class="cta-bg-orbs">
+      <div class="cta-orb cta-orb-1"></div>
+      <div class="cta-orb cta-orb-2"></div>
+    </div>
+    <div class="container">
+      <div class="cta-content" data-aos="zoom-in">
+        <div class="cta-icon">
+          <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
+            <path d="M50 10 C70 10 85 25 85 45 C85 55 80 63 73 68 L78 78 L58 72 L64 52 L70 60 C74 56 77 51 77 45 C77 29 65 18 50 18 Z" fill="#4CAF70"/>
+            <path d="M15 55 C15 35 30 20 50 20 C60 20 68 24 74 31 L64 36 L78 50 L90 32 L80 37 C73 27 62 20 50 20 C26 20 10 38 10 55 Z" fill="#1A7A2C"/>
+            <path d="M85 55 C85 75 70 90 50 90 C40 90 32 86 26 79 L36 74 L22 60 L10 78 L20 73 C27 83 38 90 50 90 C74 90 90 72 90 55 Z" fill="#3A9BD5"/>
+          </svg>
+        </div>
+        <h2>Mulai Perjalanan Ecomu<br/><span class="gradient-text">Bersama Sirkula Sekarang</span></h2>
+        <p>Bergabung dengan ribuan pengguna yang telah mengubah kebiasaan setor sampah menjadi nilai nyata. Setiap gram sampah yang kamu setor adalah langkah nyata untuk bumi yang lebih bersih.</p>
+        <div class="cta-actions">
+          <a href="#" class="btn-primary btn-lg" id="btn-cta-download">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+            Download Aplikasi
+          </a>
+          <a href="#fitur" class="btn-outline btn-lg">Pelajari Lebih Lanjut</a>
+        </div>
+        <p class="cta-note">&#10003; Gratis &nbsp;&nbsp; &#10003; Android &amp; iOS &nbsp;&nbsp; &#10003; Tanpa Iklan</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <div class="logo-icon">
+              <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
+                <path d="M50 10 C70 10 85 25 85 45 C85 55 80 63 73 68 L78 78 L58 72 L64 52 L70 60 C74 56 77 51 77 45 C77 29 65 18 50 18 Z" fill="#4CAF70"/>
+                <path d="M15 55 C15 35 30 20 50 20 C60 20 68 24 74 31 L64 36 L78 50 L90 32 L80 37 C73 27 62 20 50 20 C26 20 10 38 10 55 Z" fill="#1A7A2C"/>
+                <path d="M85 55 C85 75 70 90 50 90 C40 90 32 86 26 79 L36 74 L22 60 L10 78 L20 73 C27 83 38 90 50 90 C74 90 90 72 90 55 Z" fill="#3A9BD5"/>
+              </svg>
+            </div>
+            <span class="logo-text">Sirkula</span>
+          </div>
+          <p>Platform Digital Bank Sampah yang mengubah sampah menjadi nilai melalui ekosistem sirkular berbasis teknologi.</p>
+          <div class="footer-tagline">CIRCULAR ECOSYSTEM</div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Fitur Aplikasi</h4>
+          <ul>
+            <li><a href="#fitur">Setor Sampah</a></li>
+            <li><a href="#fitur">Sistem Poin</a></li>
+            <li><a href="#gamifikasi">Misi &amp; Gamifikasi</a></li>
+            <li><a href="#fitur">Reward Catalog</a></li>
+            <li><a href="#fitur">Leaderboard</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Teknologi</h4>
+          <ul>
+            <li><a href="#teknologi">Flutter Mobile App</a></li>
+            <li><a href="#teknologi">Next.js Admin Panel</a></li>
+            <li><a href="#teknologi">Python Flask API</a></li>
+            <li><a href="#teknologi">ML Risk Analysis</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Jenis Sampah</h4>
+          <ul>
+            <li>&#9851; Plastik</li>
+            <li>&#128196; Kertas</li>
+            <li>&#128295; Logam</li>
+            <li>&#127862; Kaca</li>
+            <li>&#127807; Organik</li>
+            <li>&#128187; Elektronik</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&#169; 2025 Sirkula. Dibangun sebagai Tugas Akhir &#8212; Platform Digital Bank Sampah.</p>
+        <p class="footer-tech-badge">Flutter &#183; Next.js &#183; Python &#183; Machine Learning</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

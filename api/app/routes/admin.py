@@ -1360,6 +1360,7 @@ def create_mission():
     points_reward = data.get('points_reward')
     period = data.get('period', 'weekly').strip()
     waste_type_code = (data.get('waste_type_code') or '').strip().lower()
+    target_label_raw = (data.get('target_label') or '').strip().lower()
 
     if not title or not target_type or target_value is None or points_reward is None:
         return error_response(
@@ -1385,6 +1386,10 @@ def create_mission():
     if period not in ['daily', 'weekly']:
         return error_response("period harus 'daily' atau 'weekly'", "validation_error", status=400, fields={"period": "invalid"})
 
+    # Validate target_label
+    valid_labels = ['high', 'medium', 'low']
+    target_label = target_label_raw if target_label_raw in valid_labels else None
+
     rate = None
     if waste_type_code:
         rate = WastePointRate.query.filter(func.lower(WastePointRate.code) == waste_type_code).first()
@@ -1404,6 +1409,7 @@ def create_mission():
         points_reward=int(points_reward),
         period=period,
         waste_type_code=rate.code if rate else None,
+        target_label=target_label,
         is_active=True,
     )
     db.session.add(mission)
@@ -1456,6 +1462,10 @@ def update_mission(mission_id):
             mission.waste_type_code = rate.code
         else:
             mission.waste_type_code = None
+    if 'target_label' in data:
+        raw_label = (data.get('target_label') or '').strip().lower()
+        valid_labels = ['high', 'medium', 'low']
+        mission.target_label = raw_label if raw_label in valid_labels else None
     if 'is_active' in data:
         mission.is_active = bool(data['is_active'])
 
@@ -1835,3 +1845,77 @@ def redemptions_summary():
         "total_points_held": int(total_points_held or 0),
         "affected_rewards_count": int(affected_rewards),
     }), 200
+
+
+# ─── Public Landing Page Endpoints (no auth required) ─────────────────
+
+@admin_bp.route('/public/stats', methods=['GET'])
+def public_landing_stats():
+    """Public endpoint for landing page stats — no authentication required."""
+    total_members = User.query.filter_by(role='member').count()
+
+    total_weight = db.session.query(
+        func.coalesce(func.sum(WasteDeposit.weight_kg), 0)
+    ).filter(WasteDeposit.status == 'validated').scalar()
+
+    total_deposits = WasteDeposit.query.filter_by(status='validated').count()
+
+    total_points_distributed = db.session.query(
+        func.coalesce(func.sum(WasteDeposit.points_earned), 0)
+    ).filter(WasteDeposit.status == 'validated').scalar()
+
+    total_redemptions = RewardRedemption.query.filter_by(status='fulfilled').count()
+
+    # Waste type breakdown (validated deposits only)
+    waste_breakdown = db.session.query(
+        WasteDeposit.waste_type,
+        func.coalesce(func.sum(WasteDeposit.weight_kg), 0).label('total_weight'),
+        func.count(WasteDeposit.id).label('deposit_count'),
+    ).filter(
+        WasteDeposit.status == 'validated'
+    ).group_by(WasteDeposit.waste_type).all()
+
+    waste_data = [
+        {
+            'waste_type': row.waste_type,
+            'label': get_waste_display_name(row.waste_type),
+            'total_weight_kg': round(float(row.total_weight or 0), 2),
+            'deposit_count': int(row.deposit_count or 0),
+        }
+        for row in waste_breakdown
+    ]
+
+    # Active missions count
+    active_missions = Mission.query.filter_by(is_active=True).count()
+
+    # Total badges earned
+    total_badges_earned = db.session.query(func.count(UserBadge.id)).scalar()
+
+    return jsonify({
+        "stats": {
+            "total_members": int(total_members),
+            "total_weight_kg": round(float(total_weight or 0), 2),
+            "total_deposits": int(total_deposits),
+            "total_points_distributed": int(total_points_distributed or 0),
+            "total_redemptions": int(total_redemptions),
+            "active_missions": int(active_missions),
+            "total_badges_earned": int(total_badges_earned or 0),
+        },
+        "waste_breakdown": waste_data,
+    }), 200
+
+
+@admin_bp.route('/public/badges', methods=['GET'])
+def public_badges_list():
+    """Public endpoint for badges list — no authentication required."""
+    badges = Badge.query.order_by(Badge.condition_value.asc()).all()
+
+    result = []
+    for badge in badges:
+        earned_count = UserBadge.query.filter_by(badge_id=badge.id).count()
+        result.append({
+            **badge.to_dict(),
+            'earned_count': int(earned_count),
+        })
+
+    return jsonify({"badges": result}), 200

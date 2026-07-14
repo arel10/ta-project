@@ -168,7 +168,7 @@ class _SetorScreenState extends State<SetorScreen> {
           const SizedBox(height: 16),
           // Form Container
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
             decoration: BoxDecoration(
               color: const Color(0xFFF0F5EA),
               borderRadius: BorderRadius.circular(24),

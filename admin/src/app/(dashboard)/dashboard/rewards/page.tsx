@@ -32,6 +32,8 @@ export default function RewardsPage() {
   const [redemptions, setRedemptions] = useState<RewardRedemption[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("catalog");
+  const [history, setHistory] = useState<RewardRedemption[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Reward form
   const [formOpen, setFormOpen] = useState(false);
@@ -81,9 +83,27 @@ export default function RewardsPage() {
     }
   }, []);
 
+  const fetchHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const res = await api.get("/rewards/redemptions/history");
+      setHistory(res.data.redemptions || []);
+    } catch {
+      toast.error("Gagal memuat riwayat penukaran");
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
   useEffect(() => {
     Promise.all([fetchRewards(), fetchRedemptions()]).finally(() => setLoading(false));
   }, [fetchRewards, fetchRedemptions]);
+
+  useEffect(() => {
+    if (activeTab === "history") {
+      fetchHistory();
+    }
+  }, [activeTab, fetchHistory]);
 
   useEffect(() => {
     return () => {
@@ -200,6 +220,7 @@ export default function RewardsPage() {
       setSelectedRedemption(null);
       setVerificationCode("");
       fetchRedemptions();
+      fetchHistory();
     } catch {
       toast.error("Gagal mengkonfirmasi penukaran");
     } finally {
@@ -218,6 +239,7 @@ export default function RewardsPage() {
       setVerificationCode("");
       fetchRedemptions();
       fetchRewards();
+      fetchHistory();
     } catch {
       toast.error("Gagal menolak penukaran");
     } finally {
@@ -406,8 +428,81 @@ export default function RewardsPage() {
         {/* TAB 3: History */}
         <TabsContent value="history" className="mt-6">
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              Riwayat penukaran akan ditampilkan di sini
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead>Anggota</TableHead>
+                    <TableHead>Reward</TableHead>
+                    <TableHead>Kode</TableHead>
+                    <TableHead>Waktu</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingHistory ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Memuat riwayat...</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : history.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                        <div className="space-y-2">
+                          <AlertTriangle className="h-12 w-12 mx-auto text-amber-500" />
+                          <p>Belum ada riwayat penukaran reward</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    history.map((r) => (
+                      <TableRow key={r.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-green-100 text-green-700 text-xs">
+                                {r.user_name ? getInitials(r.user_name) : "?"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-sm">{r.user_name || "-"}</p>
+                              <p className="text-xs text-muted-foreground">{r.user_account_number}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <p className="font-medium text-sm">{r.reward?.name || "-"}</p>
+                          <p className="text-xs text-muted-foreground">{formatNumber(r.points_spent)} poin</p>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">{r.redemption_code}</code>
+                            <button onClick={() => handleCopyCode(r.redemption_code, r.id)}>
+                              {copiedCode === r.id ? <CheckCheck className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />}
+                            </button>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {r.created_at ? formatRelativeTime(r.created_at) : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {r.status === "approved" ? (
+                            <Badge variant="success">Berhasil</Badge>
+                          ) : r.status === "rejected" ? (
+                            <Badge variant="danger">Ditolak</Badge>
+                          ) : (
+                            <Badge variant="warning">Tertunda</Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>

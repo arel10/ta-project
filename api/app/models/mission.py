@@ -14,6 +14,7 @@ class Mission(db.Model):
     period = db.Column(db.String(20), nullable=False, default='weekly')  # daily / weekly
     waste_type_code = db.Column(db.String(10), db.ForeignKey('waste_point_rates.code'), nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
+    target_label = db.Column(db.String(20), nullable=True, default=None)  # null=all, 'high', 'medium', 'low'
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
@@ -30,6 +31,7 @@ class Mission(db.Model):
             'period': self.period,
             'waste_type_code': self.waste_type_code,
             'is_active': self.is_active,
+            'target_label': self.target_label,  # null=semua, 'high'/'medium'/'low'
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 

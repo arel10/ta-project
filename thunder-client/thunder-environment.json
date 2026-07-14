@@ -1,0 +1,41 @@
+[
+  {
+    "_id": "env_sirkula_dev",
+    "name": "Sirkula - Development",
+    "default": true,
+    "data": [
+      {
+        "name": "BASE_URL",
+        "value": "http://localhost:5000/api"
+      },
+      {
+        "name": "ACCESS_TOKEN",
+        "value": ""
+      },
+      {
+        "name": "ADMIN_TOKEN",
+        "value": ""
+      },
+      {
+        "name": "REFRESH_TOKEN",
+        "value": ""
+      },
+      {
+        "name": "USER_ID",
+        "value": ""
+      },
+      {
+        "name": "DEPOSIT_ID",
+        "value": ""
+      },
+      {
+        "name": "REWARD_ID",
+        "value": ""
+      },
+      {
+        "name": "REDEMPTION_ID",
+        "value": ""
+      }
+    ]
+  }
+]

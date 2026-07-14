@@ -49,6 +49,7 @@ export interface Mission {
   period: "daily" | "weekly";
   waste_type_code?: string | null;
   is_active: boolean;
+  target_label?: "high" | "medium" | "low" | null;  // null = semua pengguna
   created_at: string;
   participants_count?: number;
   completed_count?: number;

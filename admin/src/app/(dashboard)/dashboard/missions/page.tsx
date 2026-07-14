@@ -41,6 +41,7 @@ export default function MissionsPage() {
     title: "", description: "", target_type: "deposit_count",
     target_value: "", period: "daily", points_reward: "", is_active: true,
     waste_type_code: "all",
+    target_label: "all",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -91,6 +92,7 @@ export default function MissionsPage() {
       points_reward: "",
       is_active: true,
       waste_type_code: "all",
+      target_label: "all",
     });
     setFormOpen(true);
   };
@@ -106,6 +108,7 @@ export default function MissionsPage() {
       points_reward: mission.points_reward.toString(),
       is_active: mission.is_active,
       waste_type_code: mission.waste_type_code?.toLowerCase() || "all",
+      target_label: mission.target_label ?? "all",
     });
     setFormOpen(true);
   };
@@ -126,6 +129,7 @@ export default function MissionsPage() {
         points_reward: parseInt(formData.points_reward),
         is_active: formData.is_active,
         waste_type_code: formData.waste_type_code === "all" ? null : formData.waste_type_code,
+        target_label: formData.target_label === "all" ? null : formData.target_label,
       };
 
       if (editingMission) {
@@ -276,6 +280,21 @@ export default function MissionsPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label className="text-xs uppercase font-semibold text-muted-foreground">Target Pengguna</Label>
+              <Select
+                value={formData.target_label}
+                onValueChange={(v) => setFormData({ ...formData, target_label: v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Semua Pengguna" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">🌐 Semua Pengguna</SelectItem>
+                  <SelectItem value="high">🔴 Risiko Tinggi (High Risk)</SelectItem>
+                  <SelectItem value="medium">🟡 Risiko Menengah (Medium Risk)</SelectItem>
+                  <SelectItem value="low">🟢 Risiko Rendah (Low Risk)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs uppercase font-semibold text-muted-foreground">Periode</Label>
@@ -351,6 +370,7 @@ function MissionTable({
               <TableHead>Tipe</TableHead>
               <TableHead>Target</TableHead>
               <TableHead>Reward</TableHead>
+              <TableHead>Target User</TableHead>
               <TableHead>Partisipan</TableHead>
               <TableHead>Selesai</TableHead>
               <TableHead>Status</TableHead>
@@ -391,6 +411,28 @@ function MissionTable({
                     <TableCell>
                       <span className="text-green-600 font-bold">{formatNumber(m.points_reward)}</span>
                       <span className="text-xs text-muted-foreground ml-1">poin</span>
+                    </TableCell>
+                    <TableCell>
+                      {m.target_label === "high" && (
+                        <Badge className="bg-red-100 text-red-700 border-red-200 text-[10px] font-bold uppercase">
+                          🔴 High Risk
+                        </Badge>
+                      )}
+                      {m.target_label === "medium" && (
+                        <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-[10px] font-bold uppercase">
+                          🟡 Medium Risk
+                        </Badge>
+                      )}
+                      {m.target_label === "low" && (
+                        <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px] font-bold uppercase">
+                          🟢 Low Risk
+                        </Badge>
+                      )}
+                      {!m.target_label && (
+                        <Badge variant="outline" className="text-[10px] font-bold uppercase text-muted-foreground">
+                          🌐 Semua
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>{pCount} anggota</TableCell>
                     <TableCell>

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:sirkula/features/auth/auth_provider.dart';
 import 'package:sirkula/features/reward/leaderboard_provider.dart';
 
 class RewardLeaderboardScreen extends StatefulWidget {
@@ -118,7 +119,24 @@ class RewardLeaderboardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<LeaderboardProvider>();
+    final authProvider = context.watch<AuthProvider>();
     final entries = provider.entries;
+    final currentUser = authProvider.currentUser;
+    final currentUserId = currentUser?.id;
+    LeaderboardEntry? currentUserEntry;
+    if (currentUserId != null) {
+      for (final item in entries) {
+        if (item.userId == currentUserId) {
+          currentUserEntry = item;
+          break;
+        }
+      }
+    }
+    final currentUserRank = currentUserEntry?.rank ?? provider.currentUserRank;
+    final currentUserName = (currentUser?.name ?? currentUserEntry?.name ?? '')
+        .trim();
+    final currentUserPoints =
+        currentUserEntry?.totalPoints ?? currentUser?.points;
 
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -165,10 +183,111 @@ class RewardLeaderboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         ...entries.skip(3).map((item) {
-          final isCurrentUser = provider.currentUserRank == item.rank;
+          final isCurrentUser =
+              currentUserId != null && item.userId == currentUserId;
           return _RankTile(item: item, highlight: isCurrentUser);
         }),
+        if (currentUserRank != null &&
+            currentUserName.isNotEmpty &&
+            currentUserPoints != null) ...[
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'YOUR RANKING',
+              style: GoogleFonts.poppins(
+                letterSpacing: 2,
+                color: const Color(0xFF7D8678),
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _CurrentUserRankTile(
+            rank: currentUserRank,
+            name: '$currentUserName (Anda)',
+            points: currentUserPoints,
+          ),
+        ],
       ],
+    );
+  }
+}
+
+class _CurrentUserRankTile extends StatelessWidget {
+  final int rank;
+  final String name;
+  final int points;
+
+  const _CurrentUserRankTile({
+    required this.rank,
+    required this.name,
+    required this.points,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C4F8C),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            child: Text(
+              '$rank',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
+            child: const Icon(Icons.person, size: 18, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Ranking kamu saat ini',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${NumberFormat.decimalPattern('id').format(points)} pts',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

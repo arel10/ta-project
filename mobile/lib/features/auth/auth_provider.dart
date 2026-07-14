@@ -66,6 +66,12 @@ class AuthProvider extends ChangeNotifier {
         throw const ApiException('Token tidak ditemukan pada respons login');
       }
 
+      if (userData != null && userData['role'] == 'admin') {
+        throw const ApiException(
+          'Akses ditolak. Akun administrator tidak dapat masuk ke aplikasi ini.',
+        );
+      }
+
       await TokenHelper.saveToken(token);
       await _saveUserPrefs(userData);
 

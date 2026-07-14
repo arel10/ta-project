@@ -27,7 +27,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       Cookies.remove("access_token");
       Cookies.remove("refresh_token");
-      if (typeof window !== "undefined") {
+      
+      const isLoginRequest = error.config?.url?.includes("/auth/login");
+      const isAlreadyOnLoginPage = typeof window !== "undefined" && window.location.pathname === "/login";
+
+      if (typeof window !== "undefined" && !isAlreadyOnLoginPage && !isLoginRequest) {
         window.location.href = "/login";
       }
     }

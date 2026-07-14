@@ -234,3 +234,47 @@ def get_pending_redemptions():
         "page": redemptions.page,
         "pages": redemptions.pages,
     }), 200
+
+
+@rewards_bp.route('/redemptions/history', methods=['GET'])
+@jwt_required()
+def get_redemptions_history():
+    """Admin views all redemptions history."""
+    user = _get_current_user()
+    admin_check = _require_admin(user)
+    if admin_check:
+        return admin_check
+
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    status = request.args.get('status', '').strip()
+
+    query = db.session.query(
+        RewardRedemption,
+        User.name.label('user_name'),
+        User.account_number.label('user_account_number'),
+    ).join(
+        User,
+        RewardRedemption.user_id == User.id,
+    )
+
+    if status:
+        query = query.filter(RewardRedemption.status == status)
+
+    redemptions = query.order_by(
+        RewardRedemption.created_at.desc()
+    ).paginate(page=page, per_page=per_page, error_out=False)
+
+    results = []
+    for r, user_name, user_account_number in redemptions.items:
+        data = r.to_dict()
+        data['user_name'] = user_name
+        data['user_account_number'] = user_account_number
+        results.append(data)
+
+    return jsonify({
+        "redemptions": results,
+        "total": redemptions.total,
+        "page": redemptions.page,
+        "pages": redemptions.pages,
+    }), 200

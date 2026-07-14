@@ -15,12 +15,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect root to dashboard or login
+  // Root path: if already logged in → go to dashboard, else show landing page
   if (pathname === "/") {
     if (token) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
-    return NextResponse.redirect(new URL("/login", request.url));
+    // Let the landing page render (no redirect needed)
+    return NextResponse.next();
   }
 
   return NextResponse.next();
