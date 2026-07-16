@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           Text(
-                            'C I R C U L A R   E C O S Y S T E M',
+                            'E K O S I S T E M   D A U R   U L A N G',
                             style: GoogleFonts.poppins(
                               letterSpacing: 2,
                               fontSize: 10,
@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Welcome text
                     Center(
                       child: Text(
-                        'Welcome Back',
+                        'Selamat Datang',
                         style: GoogleFonts.poppins(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
@@ -160,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 6),
                     Center(
                       child: Text(
-                        'Access your personal impact sanctuary',
+                        'Masuk untuk menyetor sampah dan tukar poin',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFF6B7A6D),
@@ -174,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'EMAIL ADDRESS',
+                            'ALAMAT EMAIL',
                             style: GoogleFonts.poppins(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -192,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Icons.mail_outline,
                                 size: 20,
                               ),
-                              hintText: 'name@ecosystem.com',
+                              hintText: 'nama.anda@gmail.com',
                               hintStyle: GoogleFonts.poppins(
                                 color: const Color(0xFFADB8AD),
                                 fontSize: 14,
@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'PASSWORD',
+                                'KATA SANDI',
                                 style: GoogleFonts.poppins(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -251,7 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               Text(
-                                'FORGOT?',
+                                'LUPA SANDI?',
                                 style: GoogleFonts.poppins(
                                   fontSize: 11,
                                   color: const Color(0xFF0F6A24),
@@ -356,7 +356,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "Don't have an account? ",
+                            "Belum punya akun? ",
                             style: GoogleFonts.poppins(
                               color: const Color(0xFF4A554B),
                               fontSize: 14,
@@ -365,7 +365,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           InkWell(
                             onTap: () => context.go(AppConstants.routeRegister),
                             child: Text(
-                              'Sign Up',
+                              'Daftar',
                               style: GoogleFonts.poppins(
                                 color: const Color(0xFF116924),
                                 fontWeight: FontWeight.w700,

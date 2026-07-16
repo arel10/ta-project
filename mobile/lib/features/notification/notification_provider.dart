@@ -93,6 +93,17 @@ class NotificationProvider extends ChangeNotifier {
               createdAt: _parseDate(raw['validated_at'] ?? raw['created_at']),
             ),
           );
+        } else if (status == 'rejected') {
+          final reason = raw['rejection_reason']?.toString() ?? 'Tidak ada alasan';
+          items.add(
+            NotificationItem(
+              type: 'Setoran',
+              title: 'Setoran Ditolak',
+              message:
+                  'Setoran $wasteType ${weight.toStringAsFixed(1)}kg ditolak. Alasan: $reason',
+              createdAt: _parseDate(raw['validated_at'] ?? raw['created_at']),
+            ),
+          );
         } else if (status == 'pending') {
           items.add(
             NotificationItem(
@@ -112,12 +123,17 @@ class NotificationProvider extends ChangeNotifier {
         final status = raw['status']?.toString() ?? 'pending';
         final pointsSpent = (raw['points_spent'] as num?)?.toInt() ?? 0;
 
+        String msg = 'Penukaran $rewardName ($pointsSpent poin) berstatus ${status.toUpperCase()}.';
+        if (status.toLowerCase() == 'rejected') {
+          final reason = raw['rejection_reason']?.toString() ?? 'Tidak ada alasan';
+          msg = 'Penukaran $rewardName ($pointsSpent poin) ditolak. Alasan: $reason';
+        }
+
         items.add(
           NotificationItem(
             type: 'Promo',
             title: 'Update Penukaran Reward',
-            message:
-                'Penukaran $rewardName ($pointsSpent poin) berstatus ${status.toUpperCase()}.',
+            message: msg,
             createdAt: _parseDate(raw['created_at']),
           ),
         );

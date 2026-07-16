@@ -108,6 +108,55 @@ def get_admin_deposits():
     }), 200
 
 
+@admin_bp.route('/notification', methods=['GET'])
+@jwt_required()
+def dashboard_notification():
+    user = _get_current_user()
+    admin_check = _require_admin(user)
+    if admin_check:
+        return admin_check
+
+    from app.services.gamification_service import get_waste_display_name
+
+    # Fetch pending deposits
+    pending_deposits = WasteDeposit.query.filter_by(status='pending').order_by(WasteDeposit.created_at.desc()).limit(10).all()
+    
+    # Fetch pending redemptions
+    pending_redemptions = RewardRedemption.query.filter_by(status='pending').order_by(RewardRedemption.created_at.desc()).limit(10).all()
+
+    notifications = []
+    
+    for dep in pending_deposits:
+        notifications.append({
+            "id": f"deposit-{dep.id}",
+            "type": "deposit",
+            "title": "Setoran Baru",
+            "message": f"{dep.user.name if dep.user else 'Anggota'} menyetor {dep.weight_kg}kg {get_waste_display_name(dep.waste_type)}",
+            "created_at": dep.created_at.isoformat() if dep.created_at else None,
+            "status": "pending",
+            "link": "/dashboard/deposits?status=pending"
+        })
+
+    for red in pending_redemptions:
+        notifications.append({
+            "id": f"redemption-{red.id}",
+            "type": "redemption",
+            "title": "Penukaran Hadiah",
+            "message": f"{red.user.name if red.user else 'Anggota'} menukar {red.reward.name if red.reward else 'reward'} dengan {red.points_spent} poin",
+            "created_at": red.created_at.isoformat() if red.created_at else None,
+            "status": "pending",
+            "link": "/dashboard/rewards?tab=pending"
+        })
+
+    # Sort notifications by created_at descending
+    notifications.sort(key=lambda x: x['created_at'] or '', reverse=True)
+
+    return jsonify({
+        "success": True,
+        "data": notifications[:20]
+    }), 200
+
+
 @admin_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
 def dashboard_stats():

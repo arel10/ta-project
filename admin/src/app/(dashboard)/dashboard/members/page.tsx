@@ -511,7 +511,8 @@ export default function MembersPage() {
                   <h4 className="font-semibold flex items-center gap-2">📊 Profil Risiko</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between"><span>Jarak sejak setoran terakhir</span><span className="font-semibold">{formatRecencyLabel(detail.risk_profile.recency_days)}</span></div>
-                    <div className="flex justify-between"><span>Frequency (/ bln)</span><span className="font-semibold">{detail.risk_profile.frequency}x</span></div>
+                    <div className="flex justify-between"><span>Frekuensi total</span><span className="font-semibold">{detail.risk_profile.frequency}x</span></div>
+                    <p className="text-xs text-muted-foreground">Mengacu pada total setoran tervalidasi yang menjadi input model risiko.</p>
                     <div className="flex justify-between">
                       <span>Consistency</span>
                       <span className="font-semibold text-green-600">{Math.round(detail.risk_profile.consistency_score * 100)}%</span>

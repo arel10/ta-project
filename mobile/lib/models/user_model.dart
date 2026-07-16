@@ -10,6 +10,7 @@ class UserModel {
   final int points;
   final String level;
   final DateTime? joinedAt;
+  final String riskLevel;
 
   const UserModel({
     required this.id,
@@ -23,6 +24,7 @@ class UserModel {
     required this.points,
     required this.level,
     required this.joinedAt,
+    required this.riskLevel,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,7 @@ class UserModel {
       joinedAt: _parseDate(
         json['created_at'] ?? json['joined_at'] ?? json['joinedAt'],
       ),
+      riskLevel: json['risk_level']?.toString() ?? 'low',
     );
   }
 
@@ -59,6 +62,7 @@ class UserModel {
       'total_points': points,
       'level': level,
       'created_at': joinedAt?.toIso8601String(),
+      'risk_level': riskLevel,
     };
   }
 
@@ -74,6 +78,7 @@ class UserModel {
     int? points,
     String? level,
     DateTime? joinedAt,
+    String? riskLevel,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -87,6 +92,7 @@ class UserModel {
       points: points ?? this.points,
       level: level ?? this.level,
       joinedAt: joinedAt ?? this.joinedAt,
+      riskLevel: riskLevel ?? this.riskLevel,
     );
   }
 

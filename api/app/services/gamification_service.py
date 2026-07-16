@@ -264,7 +264,7 @@ def check_mission_progress(user_id: int):
     if not user:
         return
 
-    active_missions = Mission.query.filter_by(is_active=True).all()
+    active_missions = Mission.get_active_query().all()
 
     for mission in active_missions:
         # Get or create user mission record

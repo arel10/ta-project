@@ -15,10 +15,19 @@ class Mission(db.Model):
     waste_type_code = db.Column(db.String(10), db.ForeignKey('waste_point_rates.code'), nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     target_label = db.Column(db.String(20), nullable=True, default=None)  # null=all, 'high', 'medium', 'low'
+    deadline = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
     user_missions = db.relationship('UserMission', backref='mission', lazy='dynamic')
+
+    @classmethod
+    def get_active_query(cls):
+        now = datetime.now(timezone.utc)
+        return cls.query.filter(
+            cls.is_active == True,
+            (cls.deadline == None) | (cls.deadline > now)
+        )
 
     def to_dict(self):
         return {
@@ -32,6 +41,7 @@ class Mission(db.Model):
             'waste_type_code': self.waste_type_code,
             'is_active': self.is_active,
             'target_label': self.target_label,  # null=semua, 'high'/'medium'/'low'
+            'deadline': self.deadline.isoformat() if self.deadline else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 

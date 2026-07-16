@@ -30,11 +30,12 @@ export interface WasteDeposit {
   weight_kg: number;
   waste_type: string;
   waste_label?: string;
-  status: "pending" | "validated";
+  status: "pending" | "validated" | "rejected";
   points_earned: number;
   created_at: string;
   validated_at: string | null;
   validated_by: string | null;
+  rejection_reason?: string | null;
   notes: string | null;
 }
 
@@ -50,6 +51,7 @@ export interface Mission {
   waste_type_code?: string | null;
   is_active: boolean;
   target_label?: "high" | "medium" | "low" | null;  // null = semua pengguna
+  deadline?: string | null;
   created_at: string;
   participants_count?: number;
   completed_count?: number;

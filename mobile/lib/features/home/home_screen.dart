@@ -187,6 +187,62 @@ class _BerandaTabState extends State<_BerandaTab> {
     return 'Selamat Malam';
   }
 
+  Widget _buildRiskLabel(String? riskLevel) {
+    final cleanLevel = (riskLevel ?? 'low').toLowerCase();
+    
+    final Color bgColor;
+    final Color textColor;
+    final String textLabel;
+    
+    if (cleanLevel == 'high') {
+      bgColor = const Color(0xFFFDE8E8);
+      textColor = const Color(0xFFE02424);
+      textLabel = 'Risiko Tinggi';
+    } else if (cleanLevel == 'medium') {
+      bgColor = const Color(0xFFFEF9C3);
+      textColor = const Color(0xFF854D0E);
+      textLabel = 'Risiko Sedang';
+    } else {
+      bgColor = const Color(0xFFDEF7EC);
+      textColor = const Color(0xFF03543F);
+      textLabel = 'Risiko Rendah';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: textColor.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: textColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            textLabel,
+            style: GoogleFonts.poppins(
+              color: textColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -237,6 +293,8 @@ class _BerandaTabState extends State<_BerandaTab> {
                           color: const Color(0xFF1A241D),
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      _buildRiskLabel(currentUser?.riskLevel),
                     ],
                   ),
                 ),

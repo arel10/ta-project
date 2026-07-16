@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 6),
               Text(
-                'T H E   L I V I N G   E C O S Y S T E M',
+                'E K O S I S T E M   D A U R   U L A N G',
                 style: GoogleFonts.poppins(
                   letterSpacing: 3,
                   fontSize: 12,
@@ -112,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 20),
               Text(
-                'Powered by Sustainability',
+                'Untuk Bumi yang Lebih Bersih',
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF9AA898),
                   fontSize: 13,

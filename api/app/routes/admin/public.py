@@ -44,7 +44,7 @@ def public_landing_stats():
         for row in waste_breakdown
     ]
 
-    active_missions = Mission.query.filter_by(is_active=True).count()
+    active_missions = Mission.get_active_query().count()
     total_badges_earned = db.session.query(db.func.count(UserBadge.id)).scalar()
 
     return jsonify({

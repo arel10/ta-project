@@ -53,6 +53,7 @@ export default function RewardsPage() {
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const resolveImageUrl = (imageUrl?: string | null) => {
     if (!imageUrl) return "";
@@ -92,6 +93,16 @@ export default function RewardsPage() {
       toast.error("Gagal memuat riwayat penukaran");
     } finally {
       setLoadingHistory(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab && ["catalog", "pending", "history"].includes(tab)) {
+        setActiveTab(tab);
+      }
     }
   }, []);
 
@@ -229,14 +240,17 @@ export default function RewardsPage() {
   };
 
   const handleRejectRedemption = async () => {
-    if (!selectedRedemption) return;
+    if (!selectedRedemption || !rejectionReason.trim()) return;
     setRejecting(true);
     try {
-      await api.put(`/rewards/redemptions/${selectedRedemption.id}/reject`);
+      await api.put(`/rewards/redemptions/${selectedRedemption.id}/reject`, {
+        rejection_reason: rejectionReason.trim(),
+      });
       toast.success("Penukaran berhasil ditolak, poin dikembalikan");
       setRejectOpen(false);
       setSelectedRedemption(null);
       setVerificationCode("");
+      setRejectionReason("");
       fetchRedemptions();
       fetchRewards();
       fetchHistory();
@@ -395,7 +409,7 @@ export default function RewardsPage() {
                                   size="sm"
                                   variant="ghost"
                                   className="text-red-500"
-                                  onClick={() => { setSelectedRedemption(r); setRejectOpen(true); }}
+                                  onClick={() => { setSelectedRedemption(r); setRejectionReason(""); setRejectOpen(true); }}
                                 >
                                   ✕
                                 </Button>
@@ -493,7 +507,14 @@ export default function RewardsPage() {
                           {r.status === "approved" ? (
                             <Badge variant="success">Berhasil</Badge>
                           ) : r.status === "rejected" ? (
-                            <Badge variant="danger">Ditolak</Badge>
+                            <>
+                              <Badge variant="danger">Ditolak</Badge>
+                              {r.rejection_reason && (
+                                <p className="text-xs text-red-600 mt-1 max-w-[150px] truncate" title={r.rejection_reason}>
+                                  Ket: {r.rejection_reason}
+                                </p>
+                              )}
+                            </>
                           ) : (
                             <Badge variant="warning">Tertunda</Badge>
                           )}
@@ -635,17 +656,29 @@ export default function RewardsPage() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="redemption_rejection_reason" className="text-red-700 font-semibold">Alasan Penolakan</Label>
+                <Textarea
+                  id="redemption_rejection_reason"
+                  placeholder="Masukkan alasan penolakan penukaran reward ini..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  rows={3}
+                  className="border-red-200 focus-visible:ring-red-500"
+                />
+              </div>
+
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
                 ✕ Penukaran akan dibatalkan dan poin dikembalikan
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectOpen(false)}>Batal</Button>
+            <Button variant="outline" onClick={() => { setRejectOpen(false); setRejectionReason(""); }}>Batal</Button>
             <Button
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={handleRejectRedemption}
-              disabled={rejecting}
+              disabled={rejecting || !rejectionReason.trim()}
             >
               {rejecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Tolak Penukaran

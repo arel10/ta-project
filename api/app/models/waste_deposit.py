@@ -13,8 +13,9 @@ class WasteDeposit(db.Model):
     source_waste_label = db.Column(db.String(120), nullable=True)
     source_price_per_kg = db.Column(db.Integer, nullable=True)
     source_total_savings = db.Column(db.Integer, nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='pending')  # pending / validated
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending / validated / rejected
     points_earned = db.Column(db.Integer, nullable=False, default=0)
+    rejection_reason = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     validated_at = db.Column(db.DateTime, nullable=True)
     validated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
@@ -43,6 +44,7 @@ class WasteDeposit(db.Model):
             'source_total_savings': self.source_total_savings,
             'status': self.status,
             'points_earned': self.points_earned,
+            'rejection_reason': self.rejection_reason,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'validated_at': self.validated_at.isoformat() if self.validated_at else None,
             'validated_by': self.validated_by,

@@ -25,7 +25,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/lib/utils";
 import type { Mission, WastePointRate } from "@/types";
 
 export default function MissionsPage() {
@@ -42,6 +42,7 @@ export default function MissionsPage() {
     target_value: "", period: "daily", points_reward: "", is_active: true,
     waste_type_code: "all",
     target_label: "all",
+    deadline: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -78,7 +79,7 @@ export default function MissionsPage() {
   }, []);
 
   const filteredMissions = activeTab === "active"
-    ? missions.filter((m) => m.is_active)
+    ? missions.filter((m) => m.is_active && (!m.deadline || new Date(m.deadline) > new Date()))
     : missions;
 
   const openCreate = () => {
@@ -93,6 +94,7 @@ export default function MissionsPage() {
       is_active: true,
       waste_type_code: "all",
       target_label: "all",
+      deadline: "",
     });
     setFormOpen(true);
   };
@@ -109,6 +111,11 @@ export default function MissionsPage() {
       is_active: mission.is_active,
       waste_type_code: mission.waste_type_code?.toLowerCase() || "all",
       target_label: mission.target_label ?? "all",
+      deadline: mission.deadline
+        ? new Date(new Date(mission.deadline).getTime() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16)
+        : "",
     });
     setFormOpen(true);
   };
@@ -116,6 +123,10 @@ export default function MissionsPage() {
   const handleSubmitMission = async () => {
     if (!formData.title || !formData.target_value || !formData.points_reward) {
       toast.error("Field wajib harus diisi");
+      return;
+    }
+    if (formData.is_active && formData.deadline && new Date(formData.deadline) < new Date()) {
+      toast.error("Batas waktu (deadline) harus di masa depan jika misi diaktifkan");
       return;
     }
     setSubmitting(true);
@@ -130,6 +141,7 @@ export default function MissionsPage() {
         is_active: formData.is_active,
         waste_type_code: formData.waste_type_code === "all" ? null : formData.waste_type_code,
         target_label: formData.target_label === "all" ? null : formData.target_label,
+        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
       };
 
       if (editingMission) {
@@ -161,6 +173,11 @@ export default function MissionsPage() {
   };
 
   const toggleMission = async (mission: Mission) => {
+    const isExpired = mission.deadline && new Date(mission.deadline) < new Date();
+    if (!mission.is_active && isExpired) {
+      toast.error("Misi telah melewati batas waktu. Edit misi untuk memperpanjang batas waktu terlebih dahulu.");
+      return;
+    }
     try {
       await api.put(`/admin/missions/${mission.id}`, { is_active: !mission.is_active });
       fetchMissions();
@@ -192,7 +209,7 @@ export default function MissionsPage() {
             <TabsTrigger value="active">✓ Misi Aktif</TabsTrigger>
             <TabsTrigger value="all">≡ Semua Misi</TabsTrigger>
           </TabsList>
-          <Card className="bg-green-600 text-white px-6 py-3 border-0">
+          {/* <Card className="bg-green-600 text-white px-6 py-3 border-0">
             <div className="flex items-center gap-4">
               <div>
                 <p className="text-xs uppercase text-green-100">Total Reward Keluar</p>
@@ -202,7 +219,7 @@ export default function MissionsPage() {
                 <TrendingUp className="h-5 w-5" />
               </div>
             </div>
-          </Card>
+          </Card> */}
         </div>
 
         <TabsContent value="active" className="mt-6">
@@ -227,18 +244,6 @@ export default function MissionsPage() {
           />
         </TabsContent>
       </Tabs>
-
-      <Card>
-        <CardContent className="py-4 flex items-center justify-between gap-3">
-          <div>
-            <p className="font-medium">Pengaturan poin level dipindahkan</p>
-            <p className="text-sm text-muted-foreground">Kelola threshold level di menu Pengaturan agar lebih terpusat.</p>
-          </div>
-          <Button asChild variant="outline">
-            <Link href="/dashboard/settings/points">Buka Pengaturan Poin</Link>
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Create/Edit Mission Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
@@ -313,6 +318,17 @@ export default function MissionsPage() {
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-green-600 font-bold">PTS</span>
                 </div>
               </div>
+            </div>
+            <div>
+              <Label className="text-xs uppercase font-semibold text-muted-foreground">Batas Waktu Misi (Opsional)</Label>
+              <Input
+                type="datetime-local"
+                value={formData.deadline}
+                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Kosongkan jika misi ini aktif terus-menerus tanpa batasan waktu.
+              </p>
             </div>
             <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4">
               <div>
@@ -391,6 +407,12 @@ function MissionTable({
                       <div>
                         <p className="font-medium">{m.title}</p>
                         <p className="text-xs text-muted-foreground line-clamp-2">{m.description}</p>
+                        {m.deadline && (
+                          <p className={`text-[11px] mt-1 font-semibold flex items-center gap-1 ${new Date(m.deadline) < new Date() ? "text-red-500 font-bold" : "text-muted-foreground"}`}>
+                            📅 Batas: {formatDate(m.deadline)} {new Date(m.deadline).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                            {new Date(m.deadline) < new Date() && " (Kadaluarsa)"}
+                          </p>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

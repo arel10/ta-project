@@ -32,7 +32,7 @@ def get_missions():
     risk_profile = ParticipationRisk.query.filter_by(user_id=user.id).first()
     user_risk_level = risk_profile.risk_level if risk_profile else None  # e.g. 'low', 'medium', 'high'
 
-    active_missions = Mission.query.filter_by(is_active=True).all()
+    active_missions = Mission.get_active_query().all()
     result = []
 
     for mission in active_missions:
@@ -167,7 +167,7 @@ def get_summary():
         user_id=user.id,
         is_completed=True,
     ).count()
-    total_active_missions = Mission.query.filter_by(is_active=True).count()
+    total_active_missions = Mission.get_active_query().count()
 
     # Total deposits
     total_deposits = WasteDeposit.query.filter_by(

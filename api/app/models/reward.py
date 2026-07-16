@@ -46,7 +46,8 @@ class RewardRedemption(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     reward_id = db.Column(db.Integer, db.ForeignKey('rewards.id'), nullable=False, index=True)
     points_spent = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')  # pending / approved
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending / approved / rejected
+    rejection_reason = db.Column(db.String(255), nullable=True)
     redemption_code = db.Column(db.String(50), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
@@ -68,6 +69,7 @@ class RewardRedemption(db.Model):
             'reward_id': self.reward_id,
             'points_spent': self.points_spent,
             'status': self.status,
+            'rejection_reason': self.rejection_reason,
             'redemption_code': self.redemption_code,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'reward': self.reward.to_dict() if self.reward else None,

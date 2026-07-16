@@ -22,6 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   formatRelativeTime, getWasteTypeLabel, getWasteCategory, formatNumber,
 } from "@/lib/utils";
@@ -51,6 +52,8 @@ export default function DepositsPage() {
   const [validateOpen, setValidateOpen] = useState(false);
   const [selectedDeposit, setSelectedDeposit] = useState<WasteDeposit | null>(null);
   const [validating, setValidating] = useState(false);
+  const [showRejectReason, setShowRejectReason] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const fetchDeposits = useCallback(async () => {
     setLoading(true);
@@ -88,6 +91,16 @@ export default function DepositsPage() {
       setPointRates(rateMap);
     } catch {
       // silent fallback: preview points will default to 0
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get("status");
+      if (status && ["all", "pending", "validated", "rejected"].includes(status)) {
+        setStatusFilter(status);
+      }
     }
   }, []);
 
@@ -130,8 +143,41 @@ export default function DepositsPage() {
     }
   };
 
+  const handleReject = async () => {
+    if (!selectedDeposit || !rejectionReason.trim()) return;
+    setValidating(true);
+    try {
+      await api.put(`/deposits/${selectedDeposit.id}/reject`, {
+        rejection_reason: rejectionReason.trim(),
+      });
+
+      toast.success("Setoran berhasil ditolak!");
+
+      // Optimistic update
+      setDeposits((prev) =>
+        prev.map((d) =>
+          d.id === selectedDeposit.id
+            ? { ...d, status: "rejected" as const, rejection_reason: rejectionReason.trim() }
+            : d
+        )
+      );
+
+      setValidateOpen(false);
+      setSelectedDeposit(null);
+      setRejectionReason("");
+      setShowRejectReason(false);
+      fetchDeposits();
+    } catch {
+      toast.error("Gagal menolak setoran");
+    } finally {
+      setValidating(false);
+    }
+  };
+
   const openValidateModal = (deposit: WasteDeposit) => {
     setSelectedDeposit(deposit);
+    setShowRejectReason(false);
+    setRejectionReason("");
     setValidateOpen(true);
   };
 
@@ -149,9 +195,6 @@ export default function DepositsPage() {
             {pendingCount} pending
           </Badge>
         </div>
-        <Button variant="outline" className="gap-2">
-          <Download className="h-4 w-4" /> Export CSV
-        </Button>
       </div>
 
       {/* Filters */}
@@ -234,7 +277,7 @@ export default function DepositsPage() {
                         <Badge
                           variant={
                             getWasteCategory(deposit.waste_type) === "organik" ? "success" :
-                            getWasteCategory(deposit.waste_type) === "b3" ? "danger" : "info"
+                              getWasteCategory(deposit.waste_type) === "b3" ? "danger" : "info"
                           }
                         >
                           {deposit.waste_label || getWasteTypeLabel(deposit.waste_type)}
@@ -255,9 +298,26 @@ export default function DepositsPage() {
                         {deposit.created_at ? formatRelativeTime(deposit.created_at) : "-"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={deposit.status === "pending" ? "warning" : "success"}>
-                          {deposit.status === "pending" ? "● Pending" : "● Tervalidasi"}
+                        <Badge
+                          variant={
+                            deposit.status === "pending"
+                              ? "warning"
+                              : deposit.status === "rejected"
+                                ? "danger"
+                                : "success"
+                          }
+                        >
+                          {deposit.status === "pending"
+                            ? "● Pending"
+                            : deposit.status === "rejected"
+                              ? "● Ditolak"
+                              : "● Tervalidasi"}
                         </Badge>
+                        {deposit.status === "rejected" && deposit.rejection_reason && (
+                          <p className="text-xs text-red-600 mt-1 max-w-[150px] truncate" title={deposit.rejection_reason}>
+                            Ket: {deposit.rejection_reason}
+                          </p>
+                        )}
                       </TableCell>
                       <TableCell>
                         {deposit.status === "pending" ? (
@@ -333,36 +393,81 @@ export default function DepositsPage() {
                 </p>
               </div>
 
-              {previewPoints > 0 && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-                  <span className="text-green-600 text-lg">⭐</span>
-                  <p className="text-sm">
-                    Poin yang akan diberikan:{" "}
-                    <span className="font-bold text-lg text-green-700">{formatNumber(previewPoints)} poin</span>
-                  </p>
+              {!showRejectReason ? (
+                previewPoints > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+                    <span className="text-green-600 text-lg">⭐</span>
+                    <p className="text-sm">
+                      Poin yang akan diberikan:{" "}
+                      <span className="font-bold text-lg text-green-700">{formatNumber(previewPoints)} poin</span>
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="rejection_reason" className="text-red-700 font-semibold">Alasan Penolakan</Label>
+                  <Textarea
+                    id="rejection_reason"
+                    placeholder="Masukkan alasan penolakan (misal: sampah kotor, basah, tidak sesuai jenis)..."
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    rows={3}
+                    className="border-red-200 focus-visible:ring-red-500"
+                  />
                 </div>
               )}
             </div>
           )}
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setValidateOpen(false)}>
-              Batal
-            </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={handleValidate}
-              disabled={validating}
-            >
-              {validating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Memproses...
-                </>
-              ) : (
-                "Konfirmasi Validasi"
-              )}
-            </Button>
+            {!showRejectReason ? (
+              <>
+                <Button variant="outline" onClick={() => setValidateOpen(false)}>
+                  Batal
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowRejectReason(true)}
+                  disabled={validating}
+                >
+                  Tolak
+                </Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={handleValidate}
+                  disabled={validating}
+                >
+                  {validating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Memproses...
+                    </>
+                  ) : (
+                    "Konfirmasi Validasi"
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => { setShowRejectReason(false); setRejectionReason(""); }} disabled={validating}>
+                  Kembali
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleReject}
+                  disabled={validating || !rejectionReason.trim()}
+                >
+                  {validating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Memproses...
+                    </>
+                  ) : (
+                    "Tolak Setoran"
+                  )}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

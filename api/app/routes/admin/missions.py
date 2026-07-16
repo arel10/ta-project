@@ -45,6 +45,7 @@ def create_mission():
     period = data.get('period', 'weekly').strip()
     waste_type_code = (data.get('waste_type_code') or '').strip().lower()
     target_label_raw = (data.get('target_label') or '').strip().lower()
+    deadline_raw = data.get('deadline')
 
     if not title or not target_type or target_value is None or points_reward is None:
         return error_response(
@@ -73,6 +74,13 @@ def create_mission():
     valid_labels = ['high', 'medium', 'low']
     target_label = target_label_raw if target_label_raw in valid_labels else None
 
+    deadline = None
+    if deadline_raw:
+        try:
+            deadline = datetime.fromisoformat(deadline_raw.replace('Z', '+00:00'))
+        except ValueError:
+            return error_response("Format batas waktu (deadline) tidak valid", "validation_error", status=400)
+
     rate = None
     if waste_type_code:
         rate = WastePointRate.query.filter(func.lower(WastePointRate.code) == waste_type_code).first()
@@ -93,6 +101,7 @@ def create_mission():
         period=period,
         waste_type_code=rate.code if rate else None,
         target_label=target_label,
+        deadline=deadline,
         is_active=True,
     )
     db.session.add(mission)
@@ -148,8 +157,34 @@ def update_mission(mission_id):
         raw_label = (data.get('target_label') or '').strip().lower()
         valid_labels = ['high', 'medium', 'low']
         mission.target_label = raw_label if raw_label in valid_labels else None
+    if 'deadline' in data:
+        deadline_raw = data.get('deadline')
+        if deadline_raw:
+            try:
+                mission.deadline = datetime.fromisoformat(deadline_raw.replace('Z', '+00:00'))
+            except ValueError:
+                return error_response("Format batas waktu (deadline) tidak valid", "validation_error", status=400)
+        else:
+            mission.deadline = None
     if 'is_active' in data:
-        mission.is_active = bool(data['is_active'])
+        is_active_val = bool(data['is_active'])
+        if is_active_val:
+            check_deadline = mission.deadline
+            if 'deadline' in data:
+                deadline_raw = data.get('deadline')
+                if deadline_raw:
+                    try:
+                        check_deadline = datetime.fromisoformat(deadline_raw.replace('Z', '+00:00'))
+                    except ValueError:
+                        pass
+            if check_deadline and check_deadline < datetime.now(timezone.utc):
+                return error_response(
+                    "Tidak dapat mengaktifkan misi yang telah melewati batas waktu tanpa memperbarui batas waktu.",
+                    "validation_error",
+                    status=400,
+                    fields={"is_active": "expired"}
+                )
+        mission.is_active = is_active_val
 
     db.session.commit()
 

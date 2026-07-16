@@ -179,12 +179,23 @@ def reject_redemption(redemption_id):
     if not member:
         return error_response("User tidak ditemukan", "not_found", status=404)
 
+    data = request.get_json() or {}
+    rejection_reason = data.get('rejection_reason', '').strip()
+    if not rejection_reason:
+        return error_response(
+            "Alasan penolakan wajib diisi",
+            "validation_error",
+            status=400,
+            fields={"rejection_reason": "required"}
+        )
+
     reward = Reward.query.get(redemption.reward_id)
     if reward:
         reward.stock += 1
 
     member.total_points += int(redemption.points_spent or 0)
     redemption.status = 'rejected'
+    redemption.rejection_reason = rejection_reason
     db.session.commit()
 
     invalidate_cache('rewards_active')

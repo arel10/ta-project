@@ -157,12 +157,9 @@ export default function DashboardPage() {
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-start justify-between">
             <div>
-              <CardTitle className="text-lg">Tren Setoran 30 Hari</CardTitle>
-              <CardDescription>Volume setoran sampah dalam kilogram</CardDescription>
+              <CardTitle className="text-lg">Tren Berat Setoran Tervalidasi 30 Hari</CardTitle>
+              <CardDescription>Akumulasi berat setoran tervalidasi per hari, dalam kilogram</CardDescription>
             </div>
-            <Button variant="outline" size="sm">
-              Download Report
-            </Button>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
@@ -285,7 +282,7 @@ export default function DashboardPage() {
                         <Badge
                           variant={
                             getWasteCategory(deposit.waste_type) === "organik" ? "success" :
-                            getWasteCategory(deposit.waste_type) === "b3" ? "danger" : "info"
+                              getWasteCategory(deposit.waste_type) === "b3" ? "danger" : "info"
                           }
                         >
                           {getWasteTypeLabel(deposit.waste_type)}

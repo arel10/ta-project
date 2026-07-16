@@ -58,6 +58,7 @@ class User(db.Model):
             'level': self.level,
             'total_points': self.total_points,
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            'risk_level': self.risk_profile.risk_level if self.risk_profile else 'low',
         }
 
     def __repr__(self):

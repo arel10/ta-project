@@ -319,7 +319,12 @@ export default function RiskPage() {
                   <TableCell>
                     <span className={`font-semibold ${getRecencyColor(u.recency_days)}`}>{formatRecencyLabel(u.recency_days)}</span>
                   </TableCell>
-                  <TableCell>{u.frequency}x / bln</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{u.frequency}x</span>
+                      <span className="text-xs text-muted-foreground">total setoran tervalidasi</span>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-green-600">{Math.round(u.consistency_score * 100)}%</span>
@@ -463,7 +468,8 @@ export default function RiskPage() {
                   <p className="text-sm font-semibold">Profil Risiko Terakhir</p>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <p>Jarak sejak setoran terakhir: <span className="font-semibold">{formatRecencyLabel(detail.risk_profile.recency_days)}</span></p>
-                    <p>Frekuensi: <span className="font-semibold">{detail.risk_profile.frequency}x/bln</span></p>
+                    <p>Frekuensi: <span className="font-semibold">{detail.risk_profile.frequency}x</span></p>
+                    <p className="col-span-2 text-xs text-muted-foreground">Frekuensi dihitung dari total setoran tervalidasi yang dipakai model ML.</p>
                   </div>
                   <div className="text-sm flex items-center justify-between">
                     <span>Konsistensi</span>

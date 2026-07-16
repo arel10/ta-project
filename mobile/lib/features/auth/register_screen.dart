@@ -151,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         Text(
-                          'C I R C U L A R   E C O S Y S T E M',
+                          'E K O S I S T E M   D A U R   U L A N G',
                           style: GoogleFonts.poppins(
                             letterSpacing: 2,
                             fontSize: 9,
@@ -189,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: GoogleFonts.poppins(fontSize: 14),
                     decoration: _inputDecoration(
                       icon: Icons.person_outline,
-                      hint: 'John Doe',
+                      hint: 'Budi Santoso',
                     ),
                     validator: (value) {
                       if ((value ?? '').trim().isEmpty) {
@@ -207,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: GoogleFonts.poppins(fontSize: 14),
                     decoration: _inputDecoration(
                       icon: Icons.mail_outline,
-                      hint: 'name@ecosystem.com',
+                      hint: 'nama.anda@gmail.com',
                     ),
                     validator: (value) {
                       final email = value?.trim() ?? '';
@@ -244,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                   const SizedBox(height: 14),
-                  _FieldLabel('PASSWORD'),
+                  _FieldLabel('KATA SANDI'),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _passwordController,
@@ -265,7 +265,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                   const SizedBox(height: 14),
-                  _FieldLabel('KONFIRMASI PASSWORD'),
+                  _FieldLabel('KONFIRMASI KATA SANDI'),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _confirmPasswordController,
@@ -380,7 +380,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Have an account? ',
+                          'Sudah punya akun? ',
                           style: GoogleFonts.poppins(
                             color: const Color(0xFF4A554B),
                             fontSize: 14,
@@ -389,7 +389,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         InkWell(
                           onTap: () => context.go(AppConstants.routeLogin),
                           child: Text(
-                            'Sign In',
+                            'Masuk',
                             style: GoogleFonts.poppins(
                               color: const Color(0xFF116924),
                               fontWeight: FontWeight.w700,

@@ -242,6 +242,51 @@ def validate_deposit(deposit_id):
     }), 200
 
 
+@deposits_bp.route('/<int:deposit_id>/reject', methods=['PUT'])
+@jwt_required()
+def reject_deposit(deposit_id):
+    """
+    Admin rejects a pending deposit. This triggers:
+    1. Status update to 'rejected'
+    2. Setting of rejection_reason
+    """
+    admin = _get_current_user()
+    admin_check = _require_admin(admin)
+    if admin_check:
+        return admin_check
+
+    deposit = WasteDeposit.query.get(deposit_id)
+    if not deposit:
+        return error_response("Setoran tidak ditemukan", "not_found", status=404)
+
+    if deposit.status == 'validated':
+        return error_response("Setoran sudah divalidasi sebelumnya, tidak bisa ditolak", "validation_error", status=400)
+    if deposit.status == 'rejected':
+        return error_response("Setoran sudah ditolak sebelumnya", "validation_error", status=400)
+
+    data = request.get_json() or {}
+    rejection_reason = data.get('rejection_reason', '').strip()
+    if not rejection_reason:
+        return error_response(
+            "Alasan penolakan wajib diisi",
+            "validation_error",
+            status=400,
+            fields={"rejection_reason": "required"}
+        )
+
+    deposit.status = 'rejected'
+    deposit.rejection_reason = rejection_reason
+    deposit.validated_at = datetime.now(timezone.utc)
+    deposit.validated_by = admin.id
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Setoran berhasil ditolak",
+        "deposit": deposit.to_dict(),
+    }), 200
+
+
 @deposits_bp.route('/all', methods=['GET'])
 @jwt_required()
 def get_all_deposits():
