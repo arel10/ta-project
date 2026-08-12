@@ -106,9 +106,9 @@ export default function DataSettingsPage() {
   const exportDeposits = async () => {
     setExportingDeposits(true);
     try {
-      const res = await api.get("/admin/data/export/deposits", { responseType: "blob" });
-      downloadBlob(res.data, `deposits_export_${Date.now()}.csv`);
-      toast.success("Export data setoran berhasil");
+      const res = await api.get("/admin/data/export/deposits/xlsx", { responseType: "blob" });
+      downloadBlob(res.data, `deposits_export_${Date.now()}.xlsx`);
+      toast.success("Export data setoran (.xlsx) berhasil");
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Gagal export data setoran");
     } finally {

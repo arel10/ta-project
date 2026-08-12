@@ -1,0 +1,17 @@
+[Unit]
+Description=Sirkula Flask Backend API Service
+After=network.target postgresql.service
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/sirkula/backend
+Environment="PATH=/opt/sirkula/backend/venv/bin"
+Environment="FLASK_ENV=production"
+Environment="FLASK_DEBUG=0"
+ExecStart=/opt/sirkula/backend/venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 3 --timeout 120 "app:create_app()"
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

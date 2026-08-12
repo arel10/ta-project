@@ -66,6 +66,7 @@ export default function MembersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [riskFilter, setRiskFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("approved");
   const [sortBy, setSortBy] = useState("created_at");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -108,7 +109,11 @@ export default function MembersPage() {
     setLoading(true);
     try {
       const params: Record<string, string | number> = { page, per_page: 10, search };
-      if (riskFilter !== "all") params.risk_level = riskFilter;
+      if (riskFilter !== "all") {
+        params.churn_filter = riskFilter;
+        params.risk_level = riskFilter;
+      }
+      params.status_filter = statusFilter;
       params.sort_by = sortBy;
 
       const res = await api.get("/admin/members", { params });
@@ -120,7 +125,7 @@ export default function MembersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, riskFilter, sortBy]);
+  }, [page, search, riskFilter, statusFilter, sortBy]);
 
   useEffect(() => {
     fetchMembers();
@@ -258,15 +263,15 @@ export default function MembersPage() {
           prev.map((m) =>
             m.id === detail.member.id
               ? {
-                  ...m,
-                  name: updatedMember.name,
-                  email: updatedMember.email,
-                  account_number: updatedMember.account_number,
-                  gender: updatedMember.gender,
-                  nik: updatedMember.nik,
-                  address: updatedMember.address,
-                  department: updatedMember.department,
-                }
+                ...m,
+                name: updatedMember.name,
+                email: updatedMember.email,
+                account_number: updatedMember.account_number,
+                gender: updatedMember.gender,
+                nik: updatedMember.nik,
+                address: updatedMember.address,
+                department: updatedMember.department,
+              }
               : m
           )
         );
@@ -315,15 +320,25 @@ export default function MembersPage() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <Select value={riskFilter} onValueChange={(v) => { setRiskFilter(v); setPage(1); }}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Semua Risiko" />
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Status Akun" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Semua Risiko</SelectItem>
-            <SelectItem value="low">Rendah</SelectItem>
-            <SelectItem value="medium">Sedang</SelectItem>
-            <SelectItem value="high">Tinggi</SelectItem>
+            <SelectItem value="approved">Status: Terverifikasi</SelectItem>
+            <SelectItem value="pending">Status: Pending</SelectItem>
+            <SelectItem value="rejected">Status: Ditolak</SelectItem>
+            <SelectItem value="all">Semua Status Akun</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={riskFilter} onValueChange={(v) => { setRiskFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Status Churn" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Status</SelectItem>
+            <SelectItem value="churn">Potensi Churn</SelectItem>
+            <SelectItem value="not_churn">Tidak Churn</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={setSortBy}>
@@ -353,44 +368,46 @@ export default function MembersPage() {
                   <TableHead>No Rekening</TableHead>
                   <TableHead>Total Poin</TableHead>
                   <TableHead>Level</TableHead>
-                  <TableHead>Risiko</TableHead>
+                  <TableHead>Status Churn</TableHead>
                   <TableHead>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {members.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className={avatarRiskColors[m.risk_level || "low"]}>
-                            {getInitials(m.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{m.name}</p>
-                          <p className="text-xs text-muted-foreground">{m.email}</p>
+                {members.map((m) => {
+                  const isChurn = m.will_churn === true || m.risk_level === "high";
+                  return (
+                    <TableRow key={m.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback className={isChurn ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}>
+                              {getInitials(m.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{m.name}</p>
+                            <p className="text-xs text-muted-foreground">{m.email}</p>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs font-mono">{m.account_number || "-"}</span>
-                    </TableCell>
-                    <TableCell className="font-semibold">{formatNumber(m.total_points)}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={levelBadgeColors[m.level] || "border-gray-300 text-gray-600"}>
-                        {m.level}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {m.risk_level ? (
-                        <Badge className={`${riskColors[m.risk_level]} border uppercase text-xs font-bold`}>
-                          {m.risk_level === "low" ? "Rendah" : m.risk_level === "medium" ? "Sedang" : "Tinggi"}
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs font-mono">{m.account_number || "-"}</span>
+                      </TableCell>
+                      <TableCell className="font-semibold">{formatNumber(m.total_points)}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={levelBadgeColors[m.level] || "border-gray-300 text-gray-600"}>
+                          {m.level}
                         </Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
+                      </TableCell>
+                      <TableCell>
+                        {(m.will_churn === true || m.risk_level === "high") ? (
+                          <Badge variant="danger" className="uppercase text-xs font-bold">
+                            Potensi Churn
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm" className="text-green-600 font-semibold hover:text-green-700" onClick={() => openDetail(m.id)}>
@@ -402,7 +419,8 @@ export default function MembersPage() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                );
+              })}
               </TableBody>
             </Table>
           )}
@@ -505,28 +523,41 @@ export default function MembersPage() {
 
               <Separator />
 
-              {/* Risk Profile */}
-              {detail.risk_profile && (
-                <div className="space-y-3">
-                  <h4 className="font-semibold flex items-center gap-2">📊 Profil Risiko</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span>Jarak sejak setoran terakhir</span><span className="font-semibold">{formatRecencyLabel(detail.risk_profile.recency_days)}</span></div>
-                    <div className="flex justify-between"><span>Frekuensi total</span><span className="font-semibold">{detail.risk_profile.frequency}x</span></div>
-                    <p className="text-xs text-muted-foreground">Mengacu pada total setoran tervalidasi yang menjadi input model risiko.</p>
-                    <div className="flex justify-between">
-                      <span>Consistency</span>
-                      <span className="font-semibold text-green-600">{Math.round(detail.risk_profile.consistency_score * 100)}%</span>
+              {/* Churn Profile */}
+              {(() => {
+                const cp = detail.churn_profile || detail.risk_profile;
+                if (!cp) return null;
+                const isChurn = cp.will_churn === true || cp.risk_level === "high";
+                const prob = cp.churn_probability !== undefined && cp.churn_probability !== null
+                  ? Math.round(cp.churn_probability * 100)
+                  : null;
+
+                return (
+                  <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-sm">Prediksi Churn ML (60 Hari)</h4>
+                      {isChurn && (
+                        <Badge variant="danger" className="uppercase text-xs font-bold">
+                          Potensi Churn
+                        </Badge>
+                      )}
                     </div>
-                    <Progress value={detail.risk_profile.consistency_score * 100} className="h-2" />
+                    {prob !== null && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Probabilitas Churn:</span>
+                          <span className={`font-bold ${isChurn ? "text-red-600" : "text-green-600"}`}>{prob}%</span>
+                        </div>
+                        <Progress value={prob} className={`h-2 ${isChurn ? "[&>div]:bg-red-600" : "[&>div]:bg-green-600"}`} />
+                      </div>
+                    )}
+                    <div className="space-y-1 text-xs text-muted-foreground pt-1">
+                      <div className="flex justify-between"><span>Setoran Terakhir:</span><span className="font-semibold text-foreground">{formatRecencyLabel(cp.recency_days)}</span></div>
+                      <div className="flex justify-between"><span>Frekuensi Total:</span><span className="font-semibold text-foreground">{cp.frequency}x</span></div>
+                    </div>
                   </div>
-                  <div className={`rounded-lg py-3 text-center font-bold text-white uppercase ${
-                    detail.risk_profile.risk_level === "low" ? "bg-green-600" :
-                    detail.risk_profile.risk_level === "medium" ? "bg-yellow-500" : "bg-red-600"
-                  }`}>
-                    Risiko {detail.risk_profile.risk_level === "low" ? "Rendah" : detail.risk_profile.risk_level === "medium" ? "Sedang" : "Tinggi"}
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               <Separator />
 
@@ -562,6 +593,7 @@ export default function MembersPage() {
         </SheetContent>
       </Sheet>
 
+      {/* Edit Profile Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
           <DialogHeader>
@@ -610,6 +642,7 @@ export default function MembersPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Member Modal */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>

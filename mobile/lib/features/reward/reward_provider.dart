@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:sirkula/core/api_client.dart';
 import 'package:sirkula/core/exceptions.dart';
+import 'package:sirkula/models/redemption_model.dart';
 import 'package:sirkula/models/reward_model.dart';
 
 class RewardRedeemResult {
@@ -23,8 +24,10 @@ class RewardProvider extends ChangeNotifier {
   static const String allCategory = 'Semua';
 
   List<RewardModel> _rewards = [];
+  List<RedemptionModel> _myRedemptions = [];
   List<String> _categories = [allCategory];
   bool _isLoading = false;
+  bool _isLoadingRedemptions = false;
   bool _isRedeeming = false;
   String _selectedCategory = allCategory;
   String? _errorMessage;
@@ -41,9 +44,11 @@ class RewardProvider extends ChangeNotifier {
         .toList();
   }
 
+  List<RedemptionModel> get myRedemptions => _myRedemptions;
   List<String> get categories => _categories;
   String get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
+  bool get isLoadingRedemptions => _isLoadingRedemptions;
   bool get isRedeeming => _isRedeeming;
   String? get errorMessage => _errorMessage;
 
@@ -105,6 +110,34 @@ class RewardProvider extends ChangeNotifier {
     }
   }
 
+  /// Loads user's redemption history.
+  Future<void> fetchMyRedemptions() async {
+    _isLoadingRedemptions = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await ApiClient.instance.get('/rewards/redemptions/my');
+      final data = _extractMap(response['data']) ?? response;
+      final list = (data['redemptions'] as List?) ?? (response['redemptions'] as List?) ?? [];
+      _myRedemptions = list
+          .whereType<Map<String, dynamic>>()
+          .map(RedemptionModel.fromJson)
+          .toList();
+    } on TimeoutException catch (e) {
+      _errorMessage = e.message;
+    } on UnauthorizedException catch (e) {
+      _errorMessage = e.message;
+    } on NetworkException catch (e) {
+      _errorMessage = e.message;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } finally {
+      _isLoadingRedemptions = false;
+      notifyListeners();
+    }
+  }
+
   /// Redeems a reward by id.
   Future<RewardRedeemResult> redeemReward(int rewardId) async {
     _isRedeeming = true;
@@ -119,6 +152,9 @@ class RewardProvider extends ChangeNotifier {
 
       final redemption = _extractMap(response['redemption']) ?? {};
       final redemptionCode = redemption['redemption_code']?.toString() ?? '-';
+
+      // Refresh my redemptions in background
+      fetchMyRedemptions();
 
       return RewardRedeemResult(
         message:

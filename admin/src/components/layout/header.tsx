@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Search, ClipboardCheck, Gift, Loader2, CheckCheck } from "lucide-react";
+import { Bell, Search, ClipboardCheck, Gift, Loader2, CheckCheck, BookOpen } from "lucide-react";
+import { AdminGuide } from "@/components/layout/admin-guide";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -18,7 +19,7 @@ const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/dashboard/deposits": "Validasi Setoran",
   "/dashboard/members": "Anggota",
-  "/dashboard/risk": "Analisis Risiko",
+  "/dashboard/risk": "Analisis Churn",
   "/dashboard/missions": "Misi & Gamifikasi",
   "/dashboard/rewards": "Katalog Reward",
   "/dashboard/settings": "Pengaturan",
@@ -50,6 +51,7 @@ export function Header({ user }: HeaderProps) {
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   // Load read status from localStorage on mount
   useEffect(() => {
@@ -129,6 +131,15 @@ export function Header({ user }: HeaderProps) {
 
       {/* Right section */}
       <div className="flex items-center gap-4">
+        {/* Guide button */}
+        <button
+          onClick={() => setGuideOpen(true)}
+          className="relative p-2 rounded-lg hover:bg-green-50 transition-colors group"
+          title="Panduan Admin"
+        >
+          <BookOpen className="h-5 w-5 text-gray-500 group-hover:text-green-600 transition-colors" />
+        </button>
+
         {/* Notification dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -255,6 +266,9 @@ export function Header({ user }: HeaderProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Admin Guide Modal */}
+      <AdminGuide open={guideOpen} onClose={() => setGuideOpen(false)} />
     </header>
   );
 }

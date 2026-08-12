@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// Validates and submits login form.
+  // Validasi dan Submit Form Login
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -84,21 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Color(0xFF90C29A).withValues(alpha: 0.35),
                     const Color(0xFFF2F8EE).withValues(alpha: 0.0),
                   ],
-                ),
-              ),
-            ),
-          ),
-          // Bottom curve
-          Positioned(
-            bottom: -40,
-            left: -40,
-            right: -40,
-            child: Container(
-              height: 120,
-              decoration: const BoxDecoration(
-                color: Color(0xFFE0EBD8),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.elliptical(500, 80),
                 ),
               ),
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:sirkula/core/constants.dart';
 import 'package:sirkula/features/profil/profil_provider.dart';
 
 class SupportCenterScreen extends StatefulWidget {
@@ -125,39 +127,110 @@ class _SupportCenterScreenState extends State<SupportCenterScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 14),
+            // Panduan Banner Card
+            InkWell(
+              onTap: () => context.push(AppConstants.routeUserGuide),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F6E25), Color(0xFF268D3E)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1A0F6E25),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: Colors.white24,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.menu_book_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Panduan Lengkap Nasabah',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Buka petunjuk setor, poin, level & reward',
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFFD8E8D5),
+                              fontSize: 11.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             // Category Cards
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: _CategoryCard(
                     icon: Icons.person_outline,
                     title: 'Akun',
+                    onTap: () => context.push(AppConstants.routeUserGuide),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: _CategoryCard(
                     icon: Icons.assignment_outlined,
                     title: 'Setoran',
+                    onTap: () => context.push(AppConstants.routeUserGuide),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: _CategoryCard(
                     icon: Icons.card_giftcard,
                     title: 'Reward',
+                    onTap: () => context.push(AppConstants.routeUserGuide),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: _CategoryCard(
                     icon: Icons.shield_outlined,
                     title: 'Keamanan',
+                    onTap: () => context.push(AppConstants.routeUserGuide),
                   ),
                 ),
               ],
@@ -289,39 +362,44 @@ class _SupportCenterScreenState extends State<SupportCenterScreen> {
 class _CategoryCard extends StatelessWidget {
   final IconData icon;
   final String title;
+  final VoidCallback? onTap;
 
-  const _CategoryCard({required this.icon, required this.title});
+  const _CategoryCard({required this.icon, required this.title, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 100,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8EFE1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              color: Color(0xFFD0DEC9),
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        height: 100,
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8EFE1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Color(0xFFD0DEC9),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: const Color(0xFF0F6E25), size: 18),
             ),
-            child: Icon(icon, color: const Color(0xFF0F6E25), size: 18),
-          ),
-          const Spacer(),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
+            const Spacer(),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

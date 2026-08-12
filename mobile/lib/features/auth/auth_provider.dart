@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sirkula/core/api_client.dart';
@@ -100,43 +101,56 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Registers a new member account.
-  Future<void> register({
+  /// Registers a new member account with optional KTP image upload.
+  Future<String> register({
     required String name,
     required String email,
     required String phone,
     required String password,
+    String? nik,
+    String? gender,
+    String? address,
+    String? ktpPath,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final payload = {
-        'name': name.trim(),
-        'email': email.trim(),
-        'phone': phone.trim(),
-        'password': password,
-      };
+      dynamic dataPayload;
+
+      if (ktpPath != null && ktpPath.isNotEmpty) {
+        dataPayload = FormData.fromMap({
+          'name': name.trim(),
+          'email': email.trim(),
+          'phone': phone.trim(),
+          'password': password,
+          if (nik != null && nik.isNotEmpty) 'nik': nik.trim(),
+          if (gender != null && gender.isNotEmpty) 'gender': gender.trim(),
+          if (address != null && address.isNotEmpty) 'address': address.trim(),
+          'ktp_image': await MultipartFile.fromFile(ktpPath),
+        });
+      } else {
+        dataPayload = {
+          'name': name.trim(),
+          'email': email.trim(),
+          'phone': phone.trim(),
+          'password': password,
+          if (nik != null && nik.isNotEmpty) 'nik': nik.trim(),
+          if (gender != null && gender.isNotEmpty) 'gender': gender.trim(),
+          if (address != null && address.isNotEmpty) 'address': address.trim(),
+        };
+      }
 
       final response = await ApiClient.instance.post(
         '/auth/register',
-        data: payload,
+        data: dataPayload,
       );
-      final data = _extractMap(response['data']) ?? response;
-      final userData =
-          _extractMap(data['user']) ?? _extractMap(response['user']);
 
-      final token =
-          data['token']?.toString() ??
-          data['access_token']?.toString() ??
-          response['token']?.toString() ??
-          response['access_token']?.toString();
+      final message = response['message']?.toString() ??
+          'Registrasi berhasil. Silakan tunggu verifikasi admin.';
 
-      if (token != null && token.isNotEmpty) {
-        await TokenHelper.saveToken(token);
-      }
-      await _saveUserPrefs(userData);
+      return message;
     } on TimeoutException catch (e) {
       _errorMessage = e.message;
       rethrow;

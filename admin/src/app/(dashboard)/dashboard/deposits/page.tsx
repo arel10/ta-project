@@ -54,6 +54,27 @@ export default function DepositsPage() {
   const [validating, setValidating] = useState(false);
   const [showRejectReason, setShowRejectReason] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  const exportDepositsXlsx = async () => {
+    setExporting(true);
+    try {
+      const res = await api.get("/admin/data/export/deposits/xlsx", { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `deposits_export_${Date.now()}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Export data setoran (.xlsx) berhasil");
+    } catch {
+      toast.error("Gagal export data setoran");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const fetchDeposits = useCallback(async () => {
     setLoading(true);
@@ -195,6 +216,18 @@ export default function DepositsPage() {
             {pendingCount} pending
           </Badge>
         </div>
+        <Button
+          onClick={exportDepositsXlsx}
+          disabled={exporting}
+          className="bg-green-600 hover:bg-green-700 text-white gap-2"
+        >
+          {exporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          Export (.xlsx)
+        </Button>
       </div>
 
       {/* Filters */}
@@ -204,6 +237,7 @@ export default function DepositsPage() {
             <TabsTrigger value="all">Semua</TabsTrigger>
             <TabsTrigger value="pending">Pending</TabsTrigger>
             <TabsTrigger value="validated">Tervalidasi</TabsTrigger>
+            <TabsTrigger value="rejected">Ditolak</TabsTrigger>
           </TabsList>
         </Tabs>
 

@@ -1,8 +1,14 @@
 """
-Sirkula ML Service — Churn Risk Prediction Microservice.
+Sirkula ML Service — Churn Prediction Microservice.
 
-Loads pre-trained Random Forest model and serves predictions
-for member participation risk levels (low/medium/high).
+Loads pre-trained Random Forest model and serves churn predictions
+for member participation (will churn / will not churn in 60 days).
+
+Development:
+    python app.py
+
+Production:
+    gunicorn --bind 127.0.0.1:5001 --workers 2 --timeout 120 "app:app"
 """
 import os
 import logging
@@ -34,20 +40,23 @@ logger = logging.getLogger(__name__)
 # ─── Model Loading ────────────────────────────────────────────────────
 
 model = None
-label_encoder = None
-thresholds = None
+metadata = None
+
+FEATURE_COLUMNS = [
+    'recency', 'frequency', 'consistency', 'avg_interval',
+    'std_interval', 'avg_berat', 'trend_berat', 'days_active',
+]
 
 
 def load_models():
-    """Load all pickle files on startup."""
-    global model, label_encoder, thresholds
+    """Load churn model and metadata on startup."""
+    global model, metadata
 
-    model_path = os.path.join(MODEL_DIR, 'random_forest_model.pkl')
-    encoder_path = os.path.join(MODEL_DIR, 'label_encoder.pkl')
-    thresholds_path = os.path.join(MODEL_DIR, 'thresholds.pkl')
+    model_path = os.path.join(MODEL_DIR, 'churn_model.pkl')
+    metadata_path = os.path.join(MODEL_DIR, 'churn_metadata.pkl')
 
     try:
-        logger.info(f"Loading model from: {model_path}")
+        logger.info(f"Loading churn model from: {model_path}")
         model = joblib.load(model_path)
         logger.info(f"✅ Model loaded: {type(model).__name__}")
     except Exception as e:
@@ -55,41 +64,44 @@ def load_models():
         model = None
 
     try:
-        logger.info(f"Loading label encoder from: {encoder_path}")
-        label_encoder = joblib.load(encoder_path)
-        logger.info(f"✅ Label encoder loaded. Classes: {list(label_encoder.classes_)}")
+        logger.info(f"Loading metadata from: {metadata_path}")
+        metadata = joblib.load(metadata_path)
+        logger.info(f"✅ Metadata loaded: {metadata}")
     except Exception as e:
-        logger.error(f"❌ Failed to load label encoder: {e}")
-        label_encoder = None
-
-    try:
-        logger.info(f"Loading thresholds from: {thresholds_path}")
-        thresholds = joblib.load(thresholds_path)
-        logger.info(f"✅ Thresholds loaded: {thresholds}")
-    except Exception as e:
-        logger.error(f"❌ Failed to load thresholds: {e}")
-        thresholds = None
+        logger.error(f"❌ Failed to load metadata: {e}")
+        metadata = None
 
 
-def predict_risk(recency: int, frequency: int, consistency: float) -> dict:
+def predict_churn(recency, frequency, consistency, avg_interval,
+                  std_interval, avg_berat, trend_berat, days_active) -> dict:
     """
-    Run prediction using the loaded model.
-    Returns risk_level and confidence_score.
+    Run churn prediction using the loaded model.
+    Returns will_churn, churn_probability, and confidence_score.
     """
-    if model is None or label_encoder is None:
+    if model is None:
         raise RuntimeError("Model not loaded")
 
-    features = np.array([[recency, frequency, consistency]])
-    prediction_encoded = model.predict(features)[0]
+    features = np.array([[recency, frequency, consistency, avg_interval,
+                          std_interval, avg_berat, trend_berat, days_active]])
+
+    prediction = model.predict(features)[0]
     probabilities = model.predict_proba(features)[0]
 
-    # Decode label
-    risk_level = label_encoder.inverse_transform([prediction_encoded])[0]
-    confidence_score = float(max(probabilities))
+    # Get optimal threshold from metadata (default 0.5)
+    threshold = 0.5
+    if metadata and 'best_threshold' in metadata:
+        threshold = metadata['best_threshold']
+
+    # Probability of churn (class 1)
+    churn_prob = float(probabilities[1]) if len(probabilities) > 1 else float(probabilities[0])
+
+    # Apply optimal threshold
+    will_churn = bool(churn_prob >= threshold)
 
     return {
-        'risk_level': risk_level,
-        'confidence_score': round(confidence_score, 4),
+        'will_churn': will_churn,
+        'churn_probability': round(churn_prob, 4),
+        'confidence_score': round(float(max(probabilities)), 4),
     }
 
 
@@ -105,19 +117,20 @@ def health():
         'status': 'healthy',
         'service': 'sirkula-ml-service',
         'model_loaded': model is not None,
-        'encoder_loaded': label_encoder is not None,
-        'thresholds_loaded': thresholds is not None,
+        'metadata_loaded': metadata is not None,
+        'model_type': 'churn_prediction',
     }), 200
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Single user prediction.
-    Expects JSON: {user_id, recency, frequency, consistency}
-    Returns: {user_id, risk_level, confidence_score}
+    Single user churn prediction.
+    Expects JSON: {user_id, recency, frequency, consistency,
+                   avg_interval, std_interval, avg_berat, trend_berat, days_active}
+    Returns: {user_id, will_churn, churn_probability, confidence_score}
     """
-    if model is None or label_encoder is None:
+    if model is None:
         return jsonify({'error': 'Model not loaded'}), 503
 
     data = request.get_json()
@@ -129,15 +142,24 @@ def predict():
         recency = int(data['recency'])
         frequency = int(data['frequency'])
         consistency = float(data['consistency'])
+        avg_interval = float(data.get('avg_interval', 0))
+        std_interval = float(data.get('std_interval', 0))
+        avg_berat = float(data.get('avg_berat', 0))
+        trend_berat = float(data.get('trend_berat', 0))
+        days_active = int(data.get('days_active', 0))
     except (KeyError, ValueError, TypeError) as e:
         return jsonify({'error': f'Invalid input: {e}'}), 400
 
     try:
-        result = predict_risk(recency, frequency, consistency)
+        result = predict_churn(recency, frequency, consistency, avg_interval,
+                               std_interval, avg_berat, trend_berat, days_active)
         logger.info(
             f"Prediction — user_id={user_id}, "
-            f"R={recency}, F={frequency}, C={consistency:.4f} "
-            f"→ {result['risk_level']} ({result['confidence_score']:.2%})"
+            f"R={recency}, F={frequency}, C={consistency:.4f}, "
+            f"AvgInt={avg_interval:.1f}, StdInt={std_interval:.1f}, "
+            f"AvgBerat={avg_berat:.2f}, Trend={trend_berat:.3f}, DaysAct={days_active} "
+            f"→ {'CHURN' if result['will_churn'] else 'NOT CHURN'} "
+            f"(prob={result['churn_probability']:.2%})"
         )
 
         return jsonify({
@@ -153,11 +175,11 @@ def predict():
 @app.route('/predict/batch', methods=['POST'])
 def predict_batch():
     """
-    Batch prediction for multiple users.
-    Expects JSON: [{user_id, recency, frequency, consistency}, ...]
-    Returns: {predictions: [{user_id, risk_level, confidence_score}, ...]}
+    Batch churn prediction for multiple users.
+    Expects JSON: [{user_id, recency, frequency, consistency, ...}, ...]
+    Returns: {predictions: [{user_id, will_churn, churn_probability, ...}, ...]}
     """
-    if model is None or label_encoder is None:
+    if model is None:
         return jsonify({'error': 'Model not loaded'}), 503
 
     data = request.get_json()
@@ -173,8 +195,14 @@ def predict_batch():
             recency = int(item['recency'])
             frequency = int(item['frequency'])
             consistency = float(item['consistency'])
+            avg_interval = float(item.get('avg_interval', 0))
+            std_interval = float(item.get('std_interval', 0))
+            avg_berat = float(item.get('avg_berat', 0))
+            trend_berat = float(item.get('trend_berat', 0))
+            days_active = int(item.get('days_active', 0))
 
-            result = predict_risk(recency, frequency, consistency)
+            result = predict_churn(recency, frequency, consistency, avg_interval,
+                                   std_interval, avg_berat, trend_berat, days_active)
             predictions.append({
                 'user_id': user_id,
                 **result,
@@ -182,8 +210,11 @@ def predict_batch():
 
             logger.info(
                 f"Batch — user_id={user_id}, "
-                f"R={recency}, F={frequency}, C={consistency:.4f} "
-                f"→ {result['risk_level']}"
+                f"R={recency}, F={frequency}, C={consistency:.4f}, "
+                f"AvgInt={avg_interval:.1f}, StdInt={std_interval:.1f}, "
+                f"AvgBerat={avg_berat:.2f}, Trend={trend_berat:.3f}, DaysAct={days_active} "
+                f"→ {'CHURN' if result['will_churn'] else 'NOT CHURN'} "
+                f"(prob={result['churn_probability']:.2%})"
             )
 
         except Exception as e:
@@ -207,20 +238,24 @@ def model_info():
     info = {
         'model_type': type(model).__name__ if model else None,
         'model_loaded': model is not None,
+        'prediction_type': 'churn_prediction',
+        'feature_columns': FEATURE_COLUMNS,
     }
 
     if model and hasattr(model, 'n_estimators'):
         info['n_estimators'] = model.n_estimators
     if model and hasattr(model, 'feature_importances_'):
         info['feature_importances'] = {
-            'recency': float(model.feature_importances_[0]),
-            'frequency': float(model.feature_importances_[1]),
-            'consistency': float(model.feature_importances_[2]),
+            col: float(imp) for col, imp in zip(FEATURE_COLUMNS, model.feature_importances_)
         }
-    if label_encoder:
-        info['classes'] = list(label_encoder.classes_)
-    if thresholds:
-        info['thresholds'] = thresholds
+    if metadata:
+        info['metadata'] = {
+            'churn_window_days': metadata.get('churn_window_days'),
+            'best_threshold': metadata.get('best_threshold'),
+            'test_accuracy': metadata.get('test_accuracy'),
+            'test_f1': metadata.get('test_f1'),
+            'test_auc': metadata.get('test_auc'),
+        }
 
     return jsonify(info), 200
 
@@ -230,4 +265,5 @@ def model_info():
 load_models()
 
 if __name__ == '__main__':
-    app.run(host=HOST, port=PORT, debug=True)
+    debug = os.getenv('FLASK_DEBUG', '0') == '1'
+    app.run(host=HOST, port=PORT, debug=debug)

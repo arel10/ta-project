@@ -1,0 +1,19 @@
+[Unit]
+Description=Sirkula ML Churn Microservice
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/sirkula/ml-service
+Environment="PATH=/opt/sirkula/ml-service/venv/bin"
+Environment="MODEL_DIR=/opt/sirkula/model"
+Environment="ML_HOST=127.0.0.1"
+Environment="ML_PORT=5001"
+Environment="FLASK_DEBUG=0"
+ExecStart=/opt/sirkula/ml-service/venv/bin/gunicorn --bind 127.0.0.1:5001 --workers 2 --timeout 120 "app:app"
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

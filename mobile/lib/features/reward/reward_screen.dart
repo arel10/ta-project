@@ -9,6 +9,7 @@ import 'package:sirkula/features/home/home_provider.dart';
 import 'package:sirkula/features/reward/leaderboard_provider.dart';
 import 'package:sirkula/features/reward/reward_leaderboard_screen.dart';
 import 'package:sirkula/features/reward/reward_provider.dart';
+import 'package:sirkula/models/redemption_model.dart';
 import 'package:sirkula/models/reward_model.dart';
 
 class RewardScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class RewardScreen extends StatefulWidget {
 }
 
 class _RewardScreenState extends State<RewardScreen> {
-  bool _showLeaderboard = false;
+  int _selectedTab = 0; // 0: Katalog, 1: Leaderboard, 2: Riwayat
 
   @override
   void initState() {
@@ -29,29 +30,20 @@ class _RewardScreenState extends State<RewardScreen> {
     });
   }
 
-  void _openLeaderboardTab() {
-    if (_showLeaderboard) {
-      return;
-    }
-
+  void _onTabChanged(int index) {
+    if (_selectedTab == index) return;
     setState(() {
-      _showLeaderboard = true;
+      _selectedTab = index;
     });
 
-    final leaderboardProvider = context.read<LeaderboardProvider>();
-    if (leaderboardProvider.entries.isEmpty && !leaderboardProvider.isLoading) {
-      leaderboardProvider.fetchLeaderboard();
+    if (index == 1) {
+      final leaderboardProvider = context.read<LeaderboardProvider>();
+      if (leaderboardProvider.entries.isEmpty && !leaderboardProvider.isLoading) {
+        leaderboardProvider.fetchLeaderboard();
+      }
+    } else if (index == 2) {
+      context.read<RewardProvider>().fetchMyRedemptions();
     }
-  }
-
-  void _openCatalogTab() {
-    if (!_showLeaderboard) {
-      return;
-    }
-
-    setState(() {
-      _showLeaderboard = false;
-    });
   }
 
   /// Confirms redemption and executes provider call.
@@ -157,7 +149,7 @@ class _RewardScreenState extends State<RewardScreen> {
             const SizedBox(height: 14),
             // Tab Toggle
             Container(
-              padding: const EdgeInsets.all(5),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: const Color(0xFFE1E8DA),
                 borderRadius: BorderRadius.circular(20),
@@ -166,67 +158,43 @@ class _RewardScreenState extends State<RewardScreen> {
                 children: [
                   Expanded(
                     child: _HeaderTab(
-                      text: 'Katalog Reward',
-                      selected: !_showLeaderboard,
-                      onTap: _openCatalogTab,
+                      text: 'Katalog',
+                      selected: _selectedTab == 0,
+                      onTap: () => _onTabChanged(0),
                     ),
                   ),
                   Expanded(
                     child: _HeaderTab(
                       text: 'Leaderboard',
-                      selected: _showLeaderboard,
-                      onTap: _openLeaderboardTab,
+                      selected: _selectedTab == 1,
+                      onTap: () => _onTabChanged(1),
+                    ),
+                  ),
+                  Expanded(
+                    child: _HeaderTab(
+                      text: 'Riwayat',
+                      selected: _selectedTab == 2,
+                      onTap: () => _onTabChanged(2),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 260),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                final isLeaderboardChild =
-                    child.key == const ValueKey<String>('leaderboard');
-                final isIncoming =
-                    (isLeaderboardChild && _showLeaderboard) ||
-                    (!isLeaderboardChild && !_showLeaderboard);
-
-                final incomingBegin = _showLeaderboard
-                    ? const Offset(0.08, 0)
-                    : const Offset(-0.08, 0);
-                final outgoingEnd = _showLeaderboard
-                    ? const Offset(-0.08, 0)
-                    : const Offset(0.08, 0);
-
-                final curvedAnimation = CurvedAnimation(
-                  parent: animation,
-                  curve: isIncoming ? Curves.easeOutCubic : Curves.easeInCubic,
-                );
-
-                final slideAnimation = Tween<Offset>(
-                  begin: isIncoming ? incomingBegin : Offset.zero,
-                  end: isIncoming ? Offset.zero : outgoingEnd,
-                ).animate(curvedAnimation);
-
-                return FadeTransition(
-                  opacity: curvedAnimation,
-                  child: SlideTransition(
-                    position: slideAnimation,
-                    child: child,
-                  ),
-                );
-              },
-              child: _showLeaderboard
-                  ? const _RewardLeaderboardView(key: ValueKey('leaderboard'))
-                  : _RewardCatalogView(
-                      key: const ValueKey('catalog'),
-                      homeProvider: homeProvider,
-                      rewardProvider: rewardProvider,
-                      onRedeem: _redeemReward,
-                    ),
-            ),
+            if (_selectedTab == 0)
+              _RewardCatalogView(
+                key: const ValueKey('catalog'),
+                homeProvider: homeProvider,
+                rewardProvider: rewardProvider,
+                onRedeem: _redeemReward,
+              )
+            else if (_selectedTab == 1)
+              const _RewardLeaderboardView(key: ValueKey('leaderboard'))
+            else
+              _RewardHistoryView(
+                key: const ValueKey('history'),
+                rewardProvider: rewardProvider,
+              ),
           ],
         ),
       ),
@@ -400,63 +368,7 @@ class _RewardCatalogView extends StatelessWidget {
               );
             },
           ),
-        const SizedBox(height: 20),
-        _UndanganKhususBanner(),
       ],
-    );
-  }
-}
-
-class _UndanganKhususBanner extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F1DC),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: const BoxDecoration(
-              color: Color(0xFFCDE6C3),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.mark_email_read,
-              color: Color(0xFF2A7C3F),
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Undangan Khusus',
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF13662B),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Bagikan kode referalmu & dapatkan 200 poin tambahan untuk setiap teman!',
-                  style: GoogleFonts.poppins(
-                    color: const Color(0xFF6B7A6D),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -660,3 +572,231 @@ class _RewardCard extends StatelessWidget {
     );
   }
 }
+
+class _RewardHistoryView extends StatelessWidget {
+  final RewardProvider rewardProvider;
+
+  const _RewardHistoryView({
+    super.key,
+    required this.rewardProvider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (rewardProvider.isLoadingRedemptions) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 40),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final redemptions = rewardProvider.myRedemptions;
+
+    if (redemptions.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8EFE1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.history_outlined, size: 48, color: Color(0xFF7A8C78)),
+            const SizedBox(height: 12),
+            Text(
+              'Belum ada riwayat penukaran',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                color: const Color(0xFF2A332B),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Poin yang kamu kumpulkan bisa ditukarkan dengan berbagai reward menarik!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: const Color(0xFF6B7A6D),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Riwayat Penukaran Reward',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF116E27),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Daftar klaim reward dan status validasinya.',
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            color: const Color(0xFF6B7A6D),
+          ),
+        ),
+        const SizedBox(height: 14),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: redemptions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final item = redemptions[index];
+            final statusText = switch (item.status) {
+              RedemptionStatus.approved => 'DISETUJUI',
+              RedemptionStatus.rejected => 'DITOLAK',
+              RedemptionStatus.pending => 'MENUNGGU VALIDASI',
+            };
+            final statusBg = switch (item.status) {
+              RedemptionStatus.approved => const Color(0xFFDEF7EC),
+              RedemptionStatus.rejected => const Color(0xFFFDE8E8),
+              RedemptionStatus.pending => const Color(0xFFFEF08A),
+            };
+            final statusTextColor = switch (item.status) {
+              RedemptionStatus.approved => const Color(0xFF03543F),
+              RedemptionStatus.rejected => const Color(0xFF9B1C1C),
+              RedemptionStatus.pending => const Color(0xFF713F12),
+            };
+
+            final dateStr = item.createdAt != null
+                ? DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(item.createdAt!)
+                : '-';
+
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0A000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F1DC),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.card_giftcard,
+                          color: Color(0xFF1A7A2C),
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.reward?.name ?? 'Reward #${item.rewardId}',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: const Color(0xFF1A241D),
+                              ),
+                            ),
+                            Text(
+                              dateStr,
+                              style: GoogleFonts.poppins(
+                                fontSize: 11,
+                                color: const Color(0xFF7A8C78),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusBg,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          statusText,
+                          style: GoogleFonts.poppins(
+                            color: statusTextColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1, color: Color(0xFFEEF2E8)),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.confirmation_number_outlined, size: 16, color: Color(0xFF6B7A6D)),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Kode: ${item.redemptionCode}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF2A332B),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '-${item.pointsSpent} Poin',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFD32F2F),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (item.rejectionReason != null && item.rejectionReason!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDF2F2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Alasan penolakan: ${item.rejectionReason}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: const Color(0xFF9B1C1C),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+

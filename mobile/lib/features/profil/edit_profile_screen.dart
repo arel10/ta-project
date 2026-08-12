@@ -204,7 +204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               border: Border.all(color: const Color(0xFFE5EDE4), width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -247,7 +247,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           height: 106,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFF0F6E25).withOpacity(0.15), width: 1.5),
+                            border: Border.all(color: const Color(0xFF0F6E25).withValues(alpha: 0.15), width: 1.5),
                           ),
                           alignment: Alignment.center,
                           child: Container(
@@ -258,7 +258,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               color: Colors.white,
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF0F6E25).withOpacity(0.08),
+                                  color: const Color(0xFF0F6E25).withValues(alpha: 0.08),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
@@ -302,7 +302,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               border: Border.all(color: Colors.white, width: 2.5),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF0F6E25).withOpacity(0.3),
+                                  color: const Color(0xFF0F6E25).withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -367,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   border: Border.all(color: const Color(0xFFEBF1EB), width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0F6E25).withOpacity(0.02),
+                      color: const Color(0xFF0F6E25).withValues(alpha: 0.02),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -512,7 +512,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0F6E25).withOpacity(0.24),
+                      color: const Color(0xFF0F6E25).withValues(alpha: 0.24),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -769,7 +769,7 @@ class _GenderOptionCard extends StatelessWidget {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.08) : const Color(0xFFF3F7F2),
+          color: isSelected ? color.withValues(alpha: 0.08) : const Color(0xFFF3F7F2),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? color : Colors.transparent,
@@ -778,7 +778,7 @@ class _GenderOptionCard extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.08),
+                    color: color.withValues(alpha: 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

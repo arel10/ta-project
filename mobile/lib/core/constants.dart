@@ -6,9 +6,12 @@ class AppConstants {
   static const String appTagline = 'CIRCULAR ECOSYSTEM';
   static const String appVersion = '1.0.0';
 
+  // Production VPS Server URL:
+  // static const String apiBaseUrl = 'https://sirkula.tech/api';
+  // Development URLs:
   // static const String apiBaseUrl = 'http://localhost:5000/api';
   // static const String apiBaseUrl = 'http://10.0.2.2:5000/api';
-  static const String apiBaseUrl = 'http://192.168.1.13:5000/api';
+  static const String apiBaseUrl = 'http://192.168.1.25:5000/api';
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 10);
 
@@ -30,6 +33,7 @@ class AppConstants {
   static const String routeLeaderboard = '/leaderboard';
   static const String routeRewardDetail = '/reward-detail';
   static const String routeSupportCenter = '/support-center';
+  static const String routeUserGuide = '/user-guide';
   static const String routeEditProfile = '/edit-profile';
   static const String routeHome = '/home';
   static const String routeSetor = '/home/setor';

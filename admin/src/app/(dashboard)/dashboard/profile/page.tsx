@@ -1,5 +1,6 @@
 "use client";
 
+import api from "@/lib/axios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Mail, IdCard, Shield, Calendar } from "lucide-react";
@@ -9,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import api from "@/lib/axios";
 import { formatDate, getInitials } from "@/lib/utils";
 
 export default function ProfilePage() {

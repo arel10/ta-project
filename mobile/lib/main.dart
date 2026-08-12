@@ -24,6 +24,7 @@ import 'package:sirkula/features/riwayat/riwayat_setoran_screen.dart';
 import 'package:sirkula/features/setor/setor_provider.dart';
 import 'package:sirkula/features/splash/splash_screen.dart';
 import 'package:sirkula/features/support/support_center_screen.dart';
+import 'package:sirkula/features/support/user_guide_screen.dart';
 import 'package:sirkula/models/reward_model.dart';
 import 'package:sirkula/models/user_model.dart';
 
@@ -191,6 +192,11 @@ class _SirkulaAppState extends State<SirkulaApp> {
           path: AppConstants.routeSupportCenter,
           pageBuilder: (context, state) =>
               _buildPage(state, const SupportCenterScreen()),
+        ),
+        GoRoute(
+          path: AppConstants.routeUserGuide,
+          pageBuilder: (context, state) =>
+              _buildPage(state, const UserGuideScreen()),
         ),
         GoRoute(
           path: AppConstants.routeEditProfile,

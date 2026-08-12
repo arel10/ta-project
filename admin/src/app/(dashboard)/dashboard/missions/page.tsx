@@ -2,7 +2,6 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Loader2, Pencil, Trash2, TrendingUp } from "lucide-react";
@@ -113,8 +112,8 @@ export default function MissionsPage() {
       target_label: mission.target_label ?? "all",
       deadline: mission.deadline
         ? new Date(new Date(mission.deadline).getTime() - new Date().getTimezoneOffset() * 60000)
-            .toISOString()
-            .slice(0, 16)
+          .toISOString()
+          .slice(0, 16)
         : "",
     });
     setFormOpen(true);
@@ -203,6 +202,7 @@ export default function MissionsPage() {
         </Button>
       </div>
 
+      {/* Tabs Section */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between">
           <TabsList>
@@ -293,10 +293,9 @@ export default function MissionsPage() {
               >
                 <SelectTrigger><SelectValue placeholder="Semua Pengguna" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">🌐 Semua Pengguna</SelectItem>
-                  <SelectItem value="high">🔴 Risiko Tinggi (High Risk)</SelectItem>
-                  <SelectItem value="medium">🟡 Risiko Menengah (Medium Risk)</SelectItem>
-                  <SelectItem value="low">🟢 Risiko Rendah (Low Risk)</SelectItem>
+                  <SelectItem value="all">Semua Pengguna</SelectItem>
+                  <SelectItem value="churn">Target: Potensi Churn</SelectItem>
+                  <SelectItem value="not_churn">Target: Tidak Churn</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -435,19 +434,14 @@ function MissionTable({
                       <span className="text-xs text-muted-foreground ml-1">poin</span>
                     </TableCell>
                     <TableCell>
-                      {m.target_label === "high" && (
+                      {m.target_label === "churn" && (
                         <Badge className="bg-red-100 text-red-700 border-red-200 text-[10px] font-bold uppercase">
-                          🔴 High Risk
+                          🔴 Potensi Churn
                         </Badge>
                       )}
-                      {m.target_label === "medium" && (
-                        <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-[10px] font-bold uppercase">
-                          🟡 Medium Risk
-                        </Badge>
-                      )}
-                      {m.target_label === "low" && (
+                      {m.target_label === "not_churn" && (
                         <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px] font-bold uppercase">
-                          🟢 Low Risk
+                          🟢 Tidak Churn
                         </Badge>
                       )}
                       {!m.target_label && (

@@ -501,8 +501,9 @@ IconData _badgeIcon(String name, String conditionType) {
   if (lowerName.contains('platinum')) return Icons.workspace_premium_rounded;
   if (lowerName.contains('gold')) return Icons.emoji_events_rounded;
   if (lowerName.contains('silver')) return Icons.military_tech_rounded;
-  if (lowerName.contains('bronze') || lowerName.contains('pemula'))
+  if (lowerName.contains('bronze') || lowerName.contains('pemula')) {
     return Icons.eco_rounded;
+  }
 
   switch (conditionType) {
     case 'points':

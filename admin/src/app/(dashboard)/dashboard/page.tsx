@@ -7,7 +7,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   Users, ClipboardCheck, AlertTriangle, Coins,
-  TrendingUp, ArrowRight,
+  TrendingUp, ArrowRight, UserX, UserCheck,
 } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip,
@@ -23,9 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatRelativeTime, getWasteTypeLabel, getWasteCategory, formatNumber } from "@/lib/utils";
-import type { DashboardKPIs, DepositTrend, WasteDeposit } from "@/types";
+import type { DashboardKPIs, DepositTrend, WasteDeposit, ChurnUser } from "@/types";
 
-const RISK_COLORS = { low: "#16a34a", medium: "#eab308", high: "#dc2626" };
+const CHURN_COLORS = {
+  churn: "#dc2626",      // Red
+  not_churn: "#16a34a",  // Green
+};
 
 function formatRecencyLabel(days?: number | null): string {
   const safeDays = Math.max(0, days ?? 0);
@@ -39,31 +42,29 @@ export default function DashboardPage() {
   const { user } = useAuthContext();
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<DepositTrend[]>([]);
-  const [riskDist, setRiskDist] = useState({ low: 0, medium: 0, high: 0 });
+  const [churnDist, setChurnDist] = useState({ churn: 0, not_churn: 0 });
   const [pendingDeposits, setPendingDeposits] = useState<WasteDeposit[]>([]);
-  const [highRiskUsers, setHighRiskUsers] = useState<Array<{
-    user_id: number; name: string; account_number: string;
-    recency_days: number; risk_level: string; predicted_at: string;
-  }>>([]);
+  const [churnUsers, setChurnUsers] = useState<ChurnUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
-      const [kpiRes, trendRes, riskRes, pendingRes, riskSummaryRes] = await Promise.all([
+      const [kpiRes, trendRes, churnRes, pendingRes, churnSummaryRes] = await Promise.all([
         api.get("/admin/dashboard/kpis"),
-        api.get("/admin/dashboard/trend?days=30"),
-        api.get("/admin/dashboard/risk-distribution"),
+        api.get("/admin/dashboard/trend?days=180"),
+        api.get("/admin/dashboard/churn-distribution"),
         api.get("/admin/dashboard/recent-pending"),
-        api.get("/ml/risk-summary"),
+        api.get("/ml/churn-summary"),
       ]);
 
       setKpis(kpiRes.data.data);
       setTrend(trendRes.data.data || []);
-      setRiskDist(riskRes.data.data || { low: 0, medium: 0, high: 0 });
+      setChurnDist(churnRes.data.data || { churn: 0, not_churn: 0 });
       setPendingDeposits(pendingRes.data.data || []);
 
-      const summary = riskSummaryRes.data;
-      setHighRiskUsers(summary.high_risk_users?.slice(0, 5) || []);
+      const summary = churnSummaryRes.data;
+      const usersList = summary.churn_users || summary.high_risk_users || [];
+      setChurnUsers(usersList.slice(0, 5));
     } catch {
       toast.error("Gagal memuat data dashboard");
     } finally {
@@ -78,12 +79,11 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   const pieData = [
-    { name: "Low Risk", value: riskDist.low, color: RISK_COLORS.low },
-    { name: "Medium Risk", value: riskDist.medium, color: RISK_COLORS.medium },
-    { name: "High Risk", value: riskDist.high, color: RISK_COLORS.high },
+    { name: "Potensi Churn", value: churnDist.churn, color: CHURN_COLORS.churn },
+    { name: "Aktif (Tidak Churn)", value: churnDist.not_churn, color: CHURN_COLORS.not_churn },
   ];
 
-  const totalRisk = riskDist.low + riskDist.medium + riskDist.high;
+  const totalMembersAnalyzed = churnDist.churn + churnDist.not_churn;
 
   if (loading) {
     return (
@@ -105,13 +105,15 @@ export default function DashboardPage() {
     );
   }
 
+  const churnCountValue = kpis?.churn_count ?? kpis?.high_risk_count ?? 0;
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">Dashboard Admin</h1>
         <p className="text-muted-foreground">
-          Selamat datang, {user?.name || "Admin"}. Berikut adalah ringkasan pengelolaan sampah hari ini.
+          Selamat datang, {user?.name || "Admin"}. Berikut adalah ringkasan operasional dan analisis prediksi churn.
         </p>
       </div>
 
@@ -121,7 +123,7 @@ export default function DashboardPage() {
           icon={Users}
           label="Total Anggota"
           value={kpis?.total_members || 0}
-          trend={`+${kpis?.active_members_this_month || 0} minggu ini`}
+          trend={`+${kpis?.active_members_this_month || 0} aktif bulan ini`}
           trendType="up"
           variant="blue"
         />
@@ -129,15 +131,15 @@ export default function DashboardPage() {
           icon={ClipboardCheck}
           label="Setoran Hari Ini"
           value={kpis?.total_deposits_today || 0}
-          trend={`+${kpis?.total_deposits_today || 0} dari kemarin`}
+          trend={`Total ${kpis?.total_weight_kg || 0} kg`}
           trendType="up"
           variant="green"
         />
         <StatCard
-          icon={AlertTriangle}
-          label="Anggota High Risk"
-          value={kpis?.high_risk_count || 0}
-          trend="Perlu Tindakan"
+          icon={UserX}
+          label="Potensi Churn (60 Hari)"
+          value={churnCountValue}
+          trend="Perlu Intervensi"
           trendType="down"
           variant="red"
         />
@@ -145,7 +147,7 @@ export default function DashboardPage() {
           icon={Coins}
           label="Total Poin Tersebar"
           value={kpis?.total_points_distributed || 0}
-          trend="Total Terbit"
+          trend="Total Poin Ditukar"
           trendType="neutral"
           variant="green"
         />
@@ -157,7 +159,7 @@ export default function DashboardPage() {
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-start justify-between">
             <div>
-              <CardTitle className="text-lg">Tren Berat Setoran Tervalidasi 30 Hari</CardTitle>
+              <CardTitle className="text-lg">Tren Berat Setoran Tervalidasi (6 Bulan)</CardTitle>
               <CardDescription>Akumulasi berat setoran tervalidasi per hari, dalam kilogram</CardDescription>
             </div>
           </CardHeader>
@@ -173,6 +175,7 @@ export default function DashboardPage() {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
+                  minTickGap={30}
                 />
                 <YAxis
                   fontSize={12}
@@ -200,8 +203,8 @@ export default function DashboardPage() {
         {/* Pie Chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg">Distribusi Risiko</CardTitle>
-            <CardDescription>Berdasarkan kepatuhan pemilahan</CardDescription>
+            <CardTitle className="text-lg">Distribusi Prediksi Churn</CardTitle>
+            <CardDescription>Prediksi partisipasi anggota 60 hari ke depan (Random Forest)</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center">
@@ -224,21 +227,30 @@ export default function DashboardPage() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="text-center -mt-28 mb-16">
-                <p className="text-3xl font-bold">{formatNumber(totalRisk)}</p>
+                <p className="text-3xl font-bold">{formatNumber(totalMembersAnalyzed)}</p>
                 <p className="text-xs text-green-600 font-medium uppercase">Anggota</p>
               </div>
               <div className="w-full space-y-2 mt-2">
                 {[
-                  { label: "Low Risk", value: riskDist.low, color: "bg-green-500", pct: totalRisk ? ((riskDist.low / totalRisk) * 100).toFixed(0) : 0 },
-                  { label: "Medium Risk", value: riskDist.medium, color: "bg-yellow-500", pct: totalRisk ? ((riskDist.medium / totalRisk) * 100).toFixed(0) : 0 },
-                  { label: "High Risk", value: riskDist.high, color: "bg-red-500", pct: totalRisk ? ((riskDist.high / totalRisk) * 100).toFixed(0) : 0 },
+                  {
+                    label: "Potensi Churn",
+                    value: churnDist.churn,
+                    color: "bg-red-500",
+                    pct: totalMembersAnalyzed ? ((churnDist.churn / totalMembersAnalyzed) * 100).toFixed(1) : 0,
+                  },
+                  {
+                    label: "Aktif (Tidak Churn)",
+                    value: churnDist.not_churn,
+                    color: "bg-green-500",
+                    pct: totalMembersAnalyzed ? ((churnDist.not_churn / totalMembersAnalyzed) * 100).toFixed(1) : 0,
+                  },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${item.color}`} />
                       <span>{item.label}</span>
                     </div>
-                    <span className="font-medium">{item.pct}%</span>
+                    <span className="font-medium">{item.pct}% ({item.value})</span>
                   </div>
                 ))}
               </div>
@@ -306,12 +318,12 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* High Risk Members Table */}
+        {/* Churn Members Table */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Anggota High Risk</CardTitle>
+            <CardTitle className="text-lg">Anggota Berpotensi Churn</CardTitle>
             <Link href="/dashboard/risk" className="text-sm text-green-600 font-medium hover:underline flex items-center gap-1">
-              Monitor Semua <ArrowRight className="h-3 w-3" />
+              Monitor Churn <ArrowRight className="h-3 w-3" />
             </Link>
           </CardHeader>
           <CardContent>
@@ -320,37 +332,45 @@ export default function DashboardPage() {
                 <TableRow>
                   <TableHead>Nama</TableHead>
                   <TableHead>Setoran Terakhir</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Probabilitas Churn</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {highRiskUsers.length === 0 ? (
+                {churnUsers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                      Tidak ada anggota high risk
+                      Tidak ada anggota berpotensi churn
                     </TableCell>
                   </TableRow>
                 ) : (
-                  highRiskUsers.map((member) => (
-                    <TableRow key={member.user_id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-semibold">
-                            {member.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                  churnUsers.map((member) => {
+                    const prob = member.churn_probability !== undefined && member.churn_probability !== null
+                      ? Math.round(member.churn_probability * 100)
+                      : null;
+                    return (
+                      <TableRow key={member.user_id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-semibold">
+                              {member.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                            </div>
+                            <div>
+                              <span className="font-medium block">{member.name}</span>
+                              <span className="text-xs text-muted-foreground">{member.account_number}</span>
+                            </div>
                           </div>
-                          <span className="font-medium">{member.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatRecencyLabel(member.recency_days)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="danger" className="text-xs">
-                          High Risk
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {formatRecencyLabel(member.recency_days)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="danger" className="text-xs font-semibold">
+                            {prob !== null ? `${prob}% Churn` : "Potensi Churn"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>

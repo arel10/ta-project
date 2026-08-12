@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import {
-  LayoutDashboard, CheckSquare, Users, AlertTriangle,
+  LayoutDashboard, CheckSquare, Users, UserCheck, AlertTriangle,
   Trophy, Gift, LogOut, Menu, Settings, Recycle, Medal, Database,
 } from "lucide-react";
 import type { User } from "@/types";
@@ -26,8 +26,9 @@ const navGroups = [
     title: "Operasional",
     items: [
       { label: "Validasi Setoran", href: "/dashboard/deposits", icon: CheckSquare },
+      { label: "Verifikasi Pendaftar", href: "/dashboard/verification", icon: UserCheck },
       { label: "Anggota", href: "/dashboard/members", icon: Users },
-      { label: "Analisis Risiko", href: "/dashboard/risk", icon: AlertTriangle },
+      { label: "Analisis Churn", href: "/dashboard/risk", icon: AlertTriangle },
     ],
   },
   {

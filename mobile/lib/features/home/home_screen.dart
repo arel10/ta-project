@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:sirkula/core/constants.dart';
 import 'package:sirkula/features/auth/auth_provider.dart';
 import 'package:sirkula/features/home/home_provider.dart';
+import 'package:sirkula/features/home/widgets/app_tutorial_dialog.dart';
 import 'package:sirkula/features/setor/setor_screen.dart';
 import 'package:sirkula/features/reward/reward_screen.dart';
 import 'package:sirkula/features/profil/profil_screen.dart';
@@ -187,67 +188,13 @@ class _BerandaTabState extends State<_BerandaTab> {
     return 'Selamat Malam';
   }
 
-  Widget _buildRiskLabel(String? riskLevel) {
-    final cleanLevel = (riskLevel ?? 'low').toLowerCase();
-    
-    final Color bgColor;
-    final Color textColor;
-    final String textLabel;
-    
-    if (cleanLevel == 'high') {
-      bgColor = const Color(0xFFFDE8E8);
-      textColor = const Color(0xFFE02424);
-      textLabel = 'Risiko Tinggi';
-    } else if (cleanLevel == 'medium') {
-      bgColor = const Color(0xFFFEF9C3);
-      textColor = const Color(0xFF854D0E);
-      textLabel = 'Risiko Sedang';
-    } else {
-      bgColor = const Color(0xFFDEF7EC);
-      textColor = const Color(0xFF03543F);
-      textLabel = 'Risiko Rendah';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: textColor.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: textColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            textLabel,
-            style: GoogleFonts.poppins(
-              color: textColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeProvider>().fetchDashboardSummary();
+      AppTutorialDialog.showIfFirstTime(context);
     });
   }
 
@@ -293,8 +240,6 @@ class _BerandaTabState extends State<_BerandaTab> {
                           color: const Color(0xFF1A241D),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      _buildRiskLabel(currentUser?.riskLevel),
                     ],
                   ),
                 ),
@@ -435,7 +380,67 @@ class _BerandaTabState extends State<_BerandaTab> {
                 ],
               ),
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 16),
+            // Banner Panduan Nasabah
+            InkWell(
+              onTap: () => context.push(AppConstants.routeUserGuide),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE8F4E5), Color(0xFFD4EAD0)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFC0E0BC)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1A7A2C),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.menu_book_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Panduan Aplikasi & Edukasi',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              color: const Color(0xFF1A241D),
+                            ),
+                          ),
+                          Text(
+                            'Cara setor, klasifikasi sampah & tukar poin',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: const Color(0xFF5F6E60),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 14,
+                      color: Color(0xFF1A7A2C),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
             // Misi Aktif
             _SectionTitle(
               title: AppConstants.labelMisiAktif,
