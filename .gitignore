@@ -85,3 +85,12 @@ desktop.ini
 
 # Uploads and runtime data
 uploads/
+
+# Ignore TA documentation & raw assets
+data/
+design/
+doc/
+model/
+landing/
+DEPLOYMENT.md
+TUTORIAL_DEPLOY_AAPANEL.md
