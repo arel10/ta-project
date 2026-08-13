@@ -71,7 +71,9 @@ def seed_database():
             email='admin@dlh.padang.go.id',
             account_number='ADM-000001',
             role='admin',
+            status='approved',
             level='Admin',
+
             total_points=0,
         )
         admin.set_password('admin123')

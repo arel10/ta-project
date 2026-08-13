@@ -32,8 +32,9 @@ deactivate
 
 echo "🖥️ [4/5] Building Admin Dashboard..."
 cd "$APP_DIR/admin"
-npm ci
+npm install
 npm run build
+
 
 echo "♻️ [5/5] Restarting Systemd Services..."
 sudo systemctl restart sirkula-backend sirkula-ml sirkula-admin

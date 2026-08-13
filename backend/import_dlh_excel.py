@@ -345,6 +345,7 @@ def import_dlh_data(
                     address=address_val,
                     department=dept_val,
                     role="member",
+                    status="approved",
                     level="Bronze",
                     total_points=0,
                 )
@@ -352,7 +353,12 @@ def import_dlh_data(
                 db.session.add(user)
                 db.session.flush()
                 stats["users_created"] += 1
+            else:
+                if user.status != "approved":
+                    user.status = "approved"
+                    user_updated = True
             users_by_account[account_number] = user
+
 
         customer_info = customer_map.get(account_number)
         user_updated = False

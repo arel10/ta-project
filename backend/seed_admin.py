@@ -45,6 +45,7 @@ def upsert_admin(
             email=email,
             account_number=account_number,
             role="admin",
+            status="approved",
             level=DEFAULT_LEVEL,
             total_points=0,
         )
@@ -59,6 +60,11 @@ def upsert_admin(
     if admin.role != "admin":
         admin.role = "admin"
         changed = True
+
+    if admin.status != "approved":
+        admin.status = "approved"
+        changed = True
+
 
     if not admin.account_number:
         admin.account_number = account_number

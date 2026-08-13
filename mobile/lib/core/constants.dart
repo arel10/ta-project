@@ -7,11 +7,12 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Production VPS Server URL:
-  // static const String apiBaseUrl = 'https://sirkula.tech/api';
+  static const String apiBaseUrl = 'https://sirkula.tech/api';
   // Development URLs:
   // static const String apiBaseUrl = 'http://localhost:5000/api';
   // static const String apiBaseUrl = 'http://10.0.2.2:5000/api';
-  static const String apiBaseUrl = 'http://192.168.1.25:5000/api';
+  // static const String apiBaseUrl = 'http://192.168.1.25:5000/api';
+
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 10);
 
