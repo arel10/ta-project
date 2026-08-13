@@ -90,7 +90,12 @@ uploads/
 data/
 design/
 doc/
-model/
 landing/
 DEPLOYMENT.md
 TUTORIAL_DEPLOY_AAPANEL.md
+
+# Model files: ignore charts and csv, allow .pkl model files
+model/*.png
+model/*.csv
+!model/*.pkl
+
