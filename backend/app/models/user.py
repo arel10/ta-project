@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import validates
 from app import db
 
 
@@ -37,8 +38,38 @@ class User(db.Model):
     user_badges = db.relationship('UserBadge', backref='user', lazy='dynamic')
     redemptions = db.relationship('RewardRedemption', backref='user', lazy='dynamic')
     risk_profile = db.relationship('ParticipationRisk', backref='user', uselist=False)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    @validates('gender')
+    def validate_gender(self, key, value):
+        if not value:
+            return None
+        v = str(value).strip().upper()
+        if v in ('L', 'LAKI-LAKI', 'LAKI LAKI', 'PRIA', 'MALE', 'M'):
+            return 'Laki-Laki'
+        elif v in ('P', 'PEREMPUAN', 'WANITA', 'FEMALE', 'F'):
+            return 'Perempuan'
+        return None
+
+    @validates('status')
+    def validate_status(self, key, value):
+        if not value:
+            return 'pending'
+        v = str(value).strip().lower()
+        if v in ('approved', 'pending', 'rejected'):
+            return v
+        return 'pending'
+
+    @validates('role')
+    def validate_role(self, key, value):
+        if not value:
+            return 'member'
+        v = str(value).strip().lower()
+        if v in ('admin', 'member'):
+            return v
+        return 'member'
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

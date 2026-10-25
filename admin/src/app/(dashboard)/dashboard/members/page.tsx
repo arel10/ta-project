@@ -603,7 +603,22 @@ export default function MembersPage() {
             <div><Label>Nama</Label><Input value={editData.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} /></div>
             <div><Label>Email</Label><Input type="email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} /></div>
             <div><Label>No Rekening</Label><Input value={editData.account_number} onChange={(e) => setEditData({ ...editData, account_number: e.target.value })} /></div>
-            <div><Label>Jenis Kelamin</Label><Input value={editData.gender} onChange={(e) => setEditData({ ...editData, gender: e.target.value })} /></div>
+            <div>
+              <Label>Jenis Kelamin</Label>
+              <Select
+                value={editData.gender || "none"}
+                onValueChange={(val) => setEditData({ ...editData, gender: val === "none" ? "" : val })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Pilih jenis kelamin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Tidak Ditentukan</SelectItem>
+                  <SelectItem value="Laki-Laki">Laki-Laki</SelectItem>
+                  <SelectItem value="Perempuan">Perempuan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>NIK</Label><Input value={editData.nik} onChange={(e) => setEditData({ ...editData, nik: e.target.value })} /></div>
             <div><Label>Bidang</Label><Input value={editData.department} onChange={(e) => setEditData({ ...editData, department: e.target.value })} /></div>
             <div><Label>Alamat</Label><Input value={editData.address} onChange={(e) => setEditData({ ...editData, address: e.target.value })} /></div>
@@ -627,7 +642,22 @@ export default function MembersPage() {
             <div><Label>Nama</Label><Input value={addData.name} onChange={(e) => setAddData({ ...addData, name: e.target.value })} placeholder="Nama lengkap" /></div>
             <div><Label>Email</Label><Input type="email" value={addData.email} onChange={(e) => setAddData({ ...addData, email: e.target.value })} placeholder="email@example.com" /></div>
             <div><Label>No Rekening</Label><Input value={addData.account_number} onChange={(e) => setAddData({ ...addData, account_number: e.target.value })} placeholder="Contoh: BSLH1234" /></div>
-            <div><Label>Jenis Kelamin</Label><Input value={addData.gender} onChange={(e) => setAddData({ ...addData, gender: e.target.value })} placeholder="Laki-laki / Perempuan" /></div>
+            <div>
+              <Label>Jenis Kelamin</Label>
+              <Select
+                value={addData.gender || "none"}
+                onValueChange={(val) => setAddData({ ...addData, gender: val === "none" ? "" : val })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Pilih jenis kelamin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Tidak Ditentukan</SelectItem>
+                  <SelectItem value="Laki-Laki">Laki-Laki</SelectItem>
+                  <SelectItem value="Perempuan">Perempuan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>NIK</Label><Input value={addData.nik} onChange={(e) => setAddData({ ...addData, nik: e.target.value })} placeholder="Nomor NIK" /></div>
             <div><Label>Bidang</Label><Input value={addData.department} onChange={(e) => setAddData({ ...addData, department: e.target.value })} placeholder="Nama bidang" /></div>
             <div><Label>Alamat</Label><Input value={addData.address} onChange={(e) => setAddData({ ...addData, address: e.target.value })} placeholder="Alamat lengkap" /></div>

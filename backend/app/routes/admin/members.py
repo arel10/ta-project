@@ -144,13 +144,19 @@ def create_member():
         address=address,
         department=department,
         role='member',
+        status='approved',
         level='Bronze',
         total_points=0,
     )
     member.set_password(password)
 
-    db.session.add(member)
-    db.session.commit()
+    try:
+        db.session.add(member)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error creating member: {e}", exc_info=True)
+        return error_response(f"Gagal menambahkan anggota: {str(e)}", "database_error", status=400)
 
     return jsonify({
         "message": "Anggota berhasil ditambahkan",
@@ -248,7 +254,13 @@ def update_member_detail(member_id):
         if existing_account:
             return error_response("No rekening sudah digunakan", "validation_error", status=400, fields={"account_number": "duplicate"})
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error updating member {member_id}: {e}", exc_info=True)
+        return error_response(f"Gagal memperbarui profil anggota: {str(e)}", "database_error", status=400)
+
     return jsonify({
         "message": "Profil anggota berhasil diperbarui",
         "member": member.to_dict(),
