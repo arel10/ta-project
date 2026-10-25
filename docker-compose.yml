@@ -5,40 +5,21 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: sirkula-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-sirkula}
       POSTGRES_USER: ${POSTGRES_USER:-user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
-      - "5432:5432"
+      # Port 5433 di host untuk mencegah konflik jika ada PostgreSQL lokal aktif di 5432
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-sirkula}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ─── Flask Backend API ────────────────────────────────────
-  backend-api:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: sirkula-backend
-    command: gunicorn --bind 0.0.0.0:5000 --workers 3 --timeout 120 "app:create_app()"
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-sirkula}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-sirkula-production-secret-key-change-me}
-      ML_SERVICE_URL: http://ml-service:5001
-      FLASK_ENV: ${FLASK_ENV:-production}
-      FLASK_DEBUG: 0
-    ports:
-      - "5000:5000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./backend/uploads:/app/uploads
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   # ─── ML Service ───────────────────────────────────────────
   ml-service:
@@ -46,6 +27,7 @@ services:
       context: ./ml-service
       dockerfile: Dockerfile
     container_name: sirkula-ml
+    restart: unless-stopped
     command: gunicorn --bind 0.0.0.0:5001 --workers 2 --timeout 120 "app:app"
     environment:
       MODEL_DIR: /app/model
@@ -55,12 +37,45 @@ services:
     volumes:
       - ./model:/app/model:ro
 
+  # ─── Flask Backend API ────────────────────────────────────
+  backend-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sirkula-backend
+    restart: unless-stopped
+    command: >
+      sh -c "echo 'Menunggu database & inisialisasi tabel...' &&
+             python init_db.py &&
+             flask db stamp head 2>/dev/null || true &&
+             echo 'Menjalankan server Gunicorn...' &&
+             gunicorn --bind 0.0.0.0:5000 --workers 2 --timeout 120 'app:create_app()'"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-sirkula}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-sirkula-secret-key-super-aman-32-char}
+      ML_SERVICE_URL: http://ml-service:5001
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_DEBUG: 0
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,https://sirkula.tech}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml-service:
+        condition: service_started
+    volumes:
+      - ./backend/uploads:/app/uploads
+
   # ─── Next.js Admin Dashboard ──────────────────────────────
   admin-web:
     build:
       context: ./admin
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api}
     container_name: sirkula-admin
+    restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api}
     ports:

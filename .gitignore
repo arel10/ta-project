@@ -1,101 +1,113 @@
-# Python
+# ==============================================================================
+# Sirkula — Root .gitignore
+# ==============================================================================
+
+# ─── Environment Variables & Secrets ──────────────────────────
+.env
+.env.*
+*.env
+*.env.*
+# Izinkan file template/example agar developer lain & server tahu formatnya
+!.env.example
+!.env*.example
+!*.env.example
+!*.env*.example
+
+# ─── Python & Virtual Environments ────────────────────────────
 __pycache__/
 *.py[cod]
+*$py.class
 *.so
 *.pyd
 .Python
 venv/
 .venv/
 env/
-.env
-.env.*
+ENV/
 pip-wheel-metadata/
 dist/
 build/
 *.egg-info/
-
-# Python tooling
-.mypy_cache/
 .pytest_cache/
+.mypy_cache/
 .ruff_cache/
 .coverage
 coverage.xml
 htmlcov/
-.tox/
-.nox/
+*pyrefly.toml
 
-# Node / Next.js (admin)
-admin/node_modules/
+# ─── Node.js & Next.js (Admin Dashboard) ──────────────────────
+node_modules/
+.next/
 admin/.next/
 admin/out/
 admin/build/
-admin/.env*
-
-# General Node
-node_modules/
+*.tsbuildinfo
+admin/tsconfig.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Flutter / Dart (mobile)
+# ─── Flutter / Dart (Mobile App) ──────────────────────────────
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-pubspec.lock
-flutter_*.log
-
-# Flutter build outputs
-build/
+mobile/.dart_tool/
 mobile/build/
 mobile-app/build/
+mobile/package-lock.json
 
-# Android (Flutter)
+# Android
 mobile/android/.gradle/
 mobile/android/local.properties
 mobile/android/**/build/
 mobile/android/**/.cxx/
+mobile/android/.kotlin/
+*.iml
+.idea/
 
-# iOS / macOS (Flutter)
+# iOS / macOS
 mobile/ios/Flutter/Generated.xcconfig
 mobile/ios/Flutter/ephemeral/
+mobile/ios/Flutter/flutter_export_environment.sh
 mobile/ios/Pods/
 mobile/ios/.symlinks/
 mobile/macos/Flutter/ephemeral/
 mobile/macos/Pods/
 mobile/macos/.symlinks/
 
-# Windows / Linux (Flutter)
+# Windows / Linux desktop flutter
 mobile/windows/flutter/ephemeral/
 mobile/linux/flutter/ephemeral/
 
-# VS Code
-.vscode/
+# ─── File Uploads, Database & Runtime Data ─────────────────────
+uploads/*
+backend/uploads/*
+!backend/uploads/**/.gitkeep
+postgres_data/
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
 
-# OS files
+# ─── Editor & OS System Files ─────────────────────────────────
+.vscode/
 .DS_Store
 Thumbs.db
 desktop.ini
+*.swp
+*.swo
 
-# Logs and temp
-*.log
-*.tmp
-*.bak
-
-# Uploads and runtime data
-uploads/
-
-# Ignore TA documentation & raw assets
-data/
-design/
-doc/
-landing/
-DEPLOYMENT.md
-TUTORIAL_DEPLOY_AAPANEL.md
-
-# Model files: ignore charts and csv, allow .pkl model files
+# ─── Model & Raw Dataset Files ────────────────────────────────
+# Abaikan grafik analisis dan dataset raw, izinkan model serialisasi .pkl
 model/*.png
 model/*.csv
 !model/*.pkl
 
+# ─── Dokumen & Aset Riset Internal TA ─────────────────────────
+data/
+design/
+doc/
