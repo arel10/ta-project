@@ -25,24 +25,24 @@ Dibandingkan dengan install manual (bare-metal) atau aaPanel:
                                                ▼
                               ┌──────────────────────────────────┐
                               │     Nginx Host + Let's Encrypt   │
-                              └──────┬────────────┬────────────┬─┘
-                                     │            │            │
-            ┌────────────────────────┘            │            └────────────────────────┐
-            │ / (Landing Page)                    │ /api/ (REST API)                    │ /admin/ & /_next/
-            ▼                                     ▼                                     ▼
- ┌──────────────────────┐              ┌──────────────────────┐              ┌──────────────────────┐
- │   /opt/sirkula/      │              │ Container:           │              │ Container:           │
- │   landing/           │              │ sirkula-backend      │              │ sirkula-admin        │
- │   (Static HTML)      │              │ (Port 5000)          │              │ (Port 3000)          │
- └──────────────────────┘              └──────────┬───────────┘              └──────────────────────┘
-                                                  │
-                                 ┌────────────────┴────────────────┐
-                                 ▼                                 ▼
-                      ┌──────────────────────┐          ┌──────────────────────┐
-                      │ Container:           │          │ Container:           │
-                      │ sirkula-db           │          │ sirkula-ml           │
-                      │ (PostgreSQL 16)      │          │ (Port 5001)          │
-                      └──────────────────────┘          └──────────────────────┘
+                              └──────┬───────────────────────┬───┘
+                                     │                       │
+                                     │ / (Web App, Auth,     │ /api/ (REST API)
+                                     │    Dashboard, _next)  │
+                                     ▼                       ▼
+                          ┌──────────────────────┐┌──────────────────────┐
+                          │ Container:           ││ Container:           │
+                          │ sirkula-admin        ││ sirkula-backend      │
+                          │ (Next.js Port 3000)  ││ (Flask Port 5000)    │
+                          └──────────────────────┘└──────────┬───────────┘
+                                                             │
+                                            ┌────────────────┴────────────────┐
+                                            ▼                                 ▼
+                                 ┌──────────────────────┐          ┌──────────────────────┐
+                                 │ Container:           │          │ Container:           │
+                                 │ sirkula-db           │          │ sirkula-ml           │
+                                 │ (PostgreSQL 16)      │          │ (Port 5001)          │
+                                 └──────────────────────┘          └──────────────────────┘
 ```
 
 ---
@@ -194,8 +194,9 @@ sudo certbot --nginx -d sirkula.tech -d www.sirkula.tech
    {"database":"connected","ml_service":"connected","service":"sirkula-backend","status":"healthy"}
    ```
 
-2. **Landing Page**: Akses `https://sirkula.tech` di browser.
-3. **Web Admin Dashboard**: Akses `https://sirkula.tech/admin/` di browser.
+2. **Web App & Landing Page**: Akses `https://sirkula.tech` di browser.
+   - Halaman utama langsung merender Next.js (`layout.tsx` & `page.tsx`) dengan statistik live DLH.
+3. **Login & Dashboard Admin**: Akses `https://sirkula.tech/login` atau `https://sirkula.tech/dashboard`.
    - Login default:
      - **Email**: `admin@dlh.padang.go.id`
      - **Password**: `admin123`
