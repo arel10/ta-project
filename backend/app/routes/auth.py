@@ -312,3 +312,46 @@ def update_me():
         "message": "Profil berhasil diperbarui",
         "user": user.to_dict(),
     }), 200
+
+
+@auth_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    """Change current user password."""
+    current_user_id = get_jwt_identity()
+    user = User.query.get(int(current_user_id))
+
+    if not user:
+        return error_response("User tidak ditemukan", "not_found", status=404)
+
+    data = request.get_json()
+    if not data:
+        return error_response("Request body tidak boleh kosong", "validation_error", status=400)
+
+    current_password = data.get('current_password', '')
+    new_password = data.get('new_password', '')
+
+    if not current_password or not new_password:
+        return error_response(
+            "Password lama dan password baru wajib diisi",
+            "validation_error",
+            status=400,
+            fields={
+                "current_password": "required" if not current_password else None,
+                "new_password": "required" if not new_password else None,
+            },
+        )
+
+    if not user.check_password(current_password):
+        return error_response("Password lama salah", "invalid_password", status=400)
+
+    if len(new_password) < 6:
+        return error_response("Password baru minimal 6 karakter", "validation_error", status=400)
+
+    user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Password berhasil diperbarui",
+    }), 200
+
