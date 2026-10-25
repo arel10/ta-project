@@ -43,6 +43,7 @@ export default function DataSettingsPage() {
       form.append("file", membersFile);
       const res = await api.post("/admin/data/import/members", form, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 1800000, // 30 menit
       });
 
       const stats = res.data?.stats;
@@ -74,6 +75,7 @@ export default function DataSettingsPage() {
 
       const res = await api.post("/admin/data/import/deposits", form, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 1800000, // 30 menit
       });
 
       const stats = res.data?.import?.stats;

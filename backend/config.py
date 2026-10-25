@@ -45,7 +45,7 @@ class Config:
 
     # File Uploads
     # Keep request limit slightly above file limit to account for multipart overhead.
-    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', str(6 * 1024 * 1024)))
+    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', str(100 * 1024 * 1024)))
     MAX_REWARD_IMAGE_SIZE = int(os.getenv('MAX_REWARD_IMAGE_SIZE', str(5 * 1024 * 1024)))
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join(os.getcwd(), 'uploads'))
 
