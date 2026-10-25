@@ -37,6 +37,8 @@ class User(db.Model):
     user_badges = db.relationship('UserBadge', backref='user', lazy='dynamic')
     redemptions = db.relationship('RewardRedemption', backref='user', lazy='dynamic')
     risk_profile = db.relationship('ParticipationRisk', backref='user', uselist=False)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -14,6 +14,7 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 from sqlalchemy import text
+from werkzeug.security import generate_password_hash
 
 from app import create_app, db
 from app.models.user import User
@@ -289,6 +290,38 @@ def import_dlh_data(
     }
 
     users_by_account: dict[str, User] = {}
+    existing_users = User.query.filter(User.account_number.isnot(None)).all()
+    for u in existing_users:
+        if u.account_number:
+            users_by_account[u.account_number] = u
+
+    existing_emails = {row[0] for row in db.session.query(User.email).all()}
+
+    def _get_unique_email_mem(account_num: str) -> str:
+        base = f"{account_num.lower()}@import.dlh.local"[:32]
+        if base not in existing_emails:
+            existing_emails.add(base)
+            return base
+        suffix = 1
+        while True:
+            candidate = f"{account_num.lower()[:20]}_{suffix}@import.dlh.local"[:32]
+            if candidate not in existing_emails:
+                existing_emails.add(candidate)
+                return candidate
+            suffix += 1
+
+    default_pwd_hash = generate_password_hash(default_password)
+    existing_deposit_sigs = set()
+    if check_duplicates:
+        existing_deposit_sigs = set(
+            db.session.query(
+                WasteDeposit.user_id,
+                WasteDeposit.created_at,
+                WasteDeposit.weight_kg,
+                WasteDeposit.waste_type,
+            ).all()
+        )
+
     touched_user_ids: set[int] = set()
 
     for row in tx_ws.iter_rows(min_row=2, values_only=True):
@@ -326,39 +359,35 @@ def import_dlh_data(
 
         user = users_by_account.get(account_number)
         if not user:
-            user = User.query.filter_by(account_number=account_number).first()
-            if not user:
-                customer_info = customer_map.get(account_number, {})
-                user_name = str(customer_info.get("name") or tx_name or account_number)[:120]
-                generated_email = _generate_unique_import_email(account_number)
-                gender_val = _normalize_gender(customer_info.get("gender"))
-                nik_val = str(customer_info["nik"])[:32] if customer_info.get("nik") else None
-                address_val = str(customer_info["address"])[:255] if customer_info.get("address") else None
-                dept_val = str(customer_info["department"])[:120] if customer_info.get("department") else None
+            customer_info = customer_map.get(account_number, {})
+            user_name = str(customer_info.get("name") or tx_name or account_number)[:120]
+            generated_email = _get_unique_email_mem(account_number)
+            gender_val = _normalize_gender(customer_info.get("gender"))
+            nik_val = str(customer_info["nik"])[:32] if customer_info.get("nik") else None
+            address_val = str(customer_info["address"])[:255] if customer_info.get("address") else None
+            dept_val = str(customer_info["department"])[:120] if customer_info.get("department") else None
 
-                user = User(
-                    name=user_name,
-                    email=generated_email,
-                    account_number=account_number,
-                    gender=gender_val,
-                    nik=nik_val,
-                    address=address_val,
-                    department=dept_val,
-                    role="member",
-                    status="approved",
-                    level="Bronze",
-                    total_points=0,
-                )
-                user.set_password(default_password)
-                db.session.add(user)
-                db.session.flush()
-                stats["users_created"] += 1
-            else:
-                if user.status != "approved":
-                    user.status = "approved"
-                    user_updated = True
+            user = User(
+                name=user_name,
+                email=generated_email,
+                password_hash=default_pwd_hash,
+                account_number=account_number,
+                gender=gender_val,
+                nik=nik_val,
+                address=address_val,
+                department=dept_val,
+                role="member",
+                status="approved",
+                level="Bronze",
+                total_points=0,
+            )
+            db.session.add(user)
+            db.session.flush()
+            stats["users_created"] += 1
             users_by_account[account_number] = user
-
+        else:
+            if user.status != "approved":
+                user.status = "approved"
 
         customer_info = customer_map.get(account_number)
         user_updated = False
@@ -392,16 +421,12 @@ def import_dlh_data(
             stats["users_updated"] += 1
 
         if check_duplicates:
-            duplicate = WasteDeposit.query.filter_by(
-                user_id=user.id,
-                created_at=created_at,
-                weight_kg=weight_kg,
-                waste_type=waste_type,
-            ).first()
-            if duplicate:
+            sig = (user.id, created_at, weight_kg, waste_type)
+            if sig in existing_deposit_sigs:
                 stats["rows_skipped"] += 1
                 stats["duplicates_skipped"] += 1
                 continue
+            existing_deposit_sigs.add(sig)
 
         points_rate = points_per_code.get(waste_type.upper(), 0)
         points = int(weight_kg * points_rate)
@@ -467,6 +492,7 @@ def import_dlh_data(
         "transaction_sheet": tx_sheet_name,
         "customer_sheet": customer_sheet_name or "-",
         "stats": stats,
+        "touched_user_ids": list(touched_user_ids),
     }
 
 

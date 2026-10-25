@@ -27,7 +27,8 @@ from app.routes.admin_common import (
     _require_admin,
     _safe_text,
 )
-from app.services.gamification_service import sync_all_users_levels_and_badges
+from werkzeug.security import generate_password_hash
+from app.services.gamification_service import sync_all_users_levels_and_badges, sync_user_level_and_badges
 from app.services.simple_cache import invalidate_cache
 from app.utils.api_response import error_response
 from import_dlh_excel import CUSTOMER_ALIASES, import_dlh_data
@@ -91,9 +92,34 @@ def import_members_from_file():
         return r[idx]
 
     created_in_batch: dict[str, User] = {}
+    default_password_hash = generate_password_hash('import123')
 
     try:
-        for row in ws.iter_rows(min_row=2, values_only=True):
+        rows = list(ws.iter_rows(min_row=2, values_only=True))
+        all_accounts = {
+            acct for r in rows
+            if (acct := _clean_account_number(_get_val(r, col_account)))
+        }
+
+        # Bulk pre-fetch existing users and emails to eliminate thousands of N+1 database queries
+        existing_users_list = User.query.filter(User.account_number.in_(all_accounts)).all() if all_accounts else []
+        existing_users_map = {u.account_number: u for u in existing_users_list}
+        existing_emails = {row[0] for row in db.session.query(User.email).all()}
+
+        def _get_unique_email_mem(account_num: str) -> str:
+            base = f"{account_num.lower()}@import.dlh.local"[:32]
+            if base not in existing_emails:
+                existing_emails.add(base)
+                return base
+            suffix = 1
+            while True:
+                candidate = f"{account_num.lower()[:20]}_{suffix}@import.dlh.local"[:32]
+                if candidate not in existing_emails:
+                    existing_emails.add(candidate)
+                    return candidate
+                suffix += 1
+
+        for row in rows:
             stats['rows_seen'] += 1
 
             account_number = _clean_account_number(_get_val(row, col_account))
@@ -117,11 +143,12 @@ def import_members_from_file():
             raw_department = _safe_text(_get_val(row, col_department))
             department = raw_department[:64] if raw_department else None
 
-            member = created_in_batch.get(account_number) or User.query.filter_by(account_number=account_number).first()
+            member = created_in_batch.get(account_number) or existing_users_map.get(account_number)
             if not member:
                 member = User(
                     name=name,
-                    email=_generate_unique_import_email(account_number),
+                    email=_get_unique_email_mem(account_number),
+                    password_hash=default_password_hash,
                     account_number=account_number,
                     gender=gender,
                     nik=nik,
@@ -131,7 +158,6 @@ def import_members_from_file():
                     level='Bronze',
                     total_points=0,
                 )
-                member.set_password('import123')
                 db.session.add(member)
                 created_in_batch[account_number] = member
                 stats['members_created'] += 1
@@ -210,7 +236,15 @@ def import_deposits_from_file():
                 commit=True,
             )
 
-            sync_stats = sync_all_users_levels_and_badges()
+            # Sync badges for touched users only, preventing timeout on large user bases
+            touched_uids = result.get('touched_user_ids')
+            if touched_uids is not None:
+                for uid in touched_uids:
+                    sync_user_level_and_badges(uid, commit=False)
+                db.session.commit()
+                sync_stats = {'users_synced': len(touched_uids)}
+            else:
+                sync_stats = sync_all_users_levels_and_badges()
 
             return jsonify({
                 "message": "Import data setoran berhasil",
